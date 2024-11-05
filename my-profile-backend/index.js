@@ -95,114 +95,41 @@ app.post('/profile', (req, res) => {
     });
   });
   
-//   プロフィール取得エンドポイント
+// プロフィール取得エンドポイント
 app.get('/profile/:userId', (req, res) => {
-    const userId = req.params.userId;
-    const sql = 'SELECT * FROM profiles WHERE user_id = ?';
-  
-    db.get(sql, [userId], (err, row) => {
-      if (err) {
-        return res.status(500).json({ message: 'Internal server error', error: err.message });
-      }
-      if (!row) {
-        return res.status(404).json({ message: 'Profile not found' });
-      }
-      res.status(200).json(row);
-    });
+  const userId = req.params.userId;
+  const sql = 'SELECT * FROM profiles WHERE user_id = ?';
+
+  db.get(sql, [userId], (err, row) => {
+    if (err) {
+      return res.status(500).json({ message: 'Internal server error', error: err.message });
+    }
+    if (!row) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+    res.status(200).json(row);
   });
-
-
-  
-// // ユーザープロファイルをユーザーネームで取得するルート
-// app.get('/profile/:username', (req, res) => {
-//   const username = req.params.username;
-  
-//   db.get('SELECT * FROM users WHERE username = ?', [username], (err, row) => {
-//     if (err) {
-//       res.status(500).send({ error: 'Database error' });
-//     } else if (!row) {
-//       res.status(404).send({ error: 'User not found' });
-//     } else {
-//       res.json(row);
-//     }
-//   });
-// });
-
-
-//   // プロフィール更新エンドポイント
-// app.put('/profile/:userId', (req, res) => {
-//     const userId = req.params.userId;
-//     const { bio, profile_picture_url, social_links } = req.body;
-//     const sql = 'UPDATE profiles SET bio = ?, profile_picture_url = ?, social_links = ? WHERE user_id = ?';
-  
-//     db.run(sql, [bio, profile_picture_url, social_links, userId], function(err) {
-//       if (err) {
-//         return res.status(500).json({ message: 'Error updating profile', error: err.message });
-//       }
-//       res.status(200).json({ message: 'Profile updated successfully' });
-//     });
-//   });
-  
-//   // プロファイル更新のエンドポイント
-// app.put('/profile/:userId', (req, res) => {
-//     const userId = req.params.userId;
-//     const { bio, profile_picture_url, social_links } = req.body;
-  
-//     db.run(
-//       `UPDATE users SET bio = ?, profile_picture_url = ?, social_links = ? WHERE user_id = ?`,
-//       [bio, profile_picture_url, social_links, userId],
-//       function (err) {
-//         if (err) {
-//           res.status(500).send({ error: 'Database error' });
-//         } else if (this.changes === 0) {
-//           res.status(404).send({ error: 'User not found' });
-//         } else {
-//           res.json({ message: 'Profile updated successfully' });
-//         }
-//       }
-//     );
-//   });
-  
-
-  // プロフィール更新エンドポイント
-// app.put('/profile/:userId', (req, res) => {
-//     const userId = req.params.userId;
-//     const { bio, profile_picture_url, social_links } = req.body;
-  
-//     const sql = 'UPDATE profiles SET bio = ?, profile_picture_url = ?, social_links = ? WHERE user_id = ?';
-    
-//     db.run(sql, [bio, profile_picture_url, social_links, userId], function(err) {
-//       if (err) {
-//         return res.status(500).json({ message: 'Error updating profile', error: err.message });
-//       }
-//       if (this.changes === 0) {
-//         return res.status(404).json({ message: 'Profile not found' });
-//       }
-//       res.json({ message: 'Profile updated successfully' });
-//     });
-//   });
-  
-
-app.put('/login/:userId', (req, res) => {
-    const userId = req.params.userId;
-    const { bio, profile_picture_url, social_links } = req.body;
-
-    db.run(
-      `UPDATE profiles SET bio = ?, profile_picture_url = ?, social_links = ? WHERE user_id = ?`,
-      [bio, profile_picture_url, social_links, userId],
-      function (err) {
-        if (err) {
-          res.status(500).send({ error: 'Database error' });
-        } else if (this.changes === 0) {
-          res.status(404).send({ error: 'Profile not found' });
-        } else {
-          res.json({ message: 'Profile updated successfully' });
-        }
-      }
-    );
 });
 
+// プロフィール更新エンドポイント
+app.put('/profile/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const { bio, profile_picture_url, social_links } = req.body;
 
+  db.run(
+    `UPDATE profiles SET bio = ?, profile_picture_url = ?, social_links = ? WHERE user_id = ?`,
+    [bio, profile_picture_url, social_links, userId],
+    function (err) {
+      if (err) {
+        res.status(500).send({ error: 'Database error' });
+      } else if (this.changes === 0) {
+        res.status(404).send({ error: 'Profile not found' });
+      } else {
+        res.json({ message: 'Profile updated successfully' });
+      }
+    }
+  );
+});
 
 // サーバー起動
 app.listen(PORT, () => {

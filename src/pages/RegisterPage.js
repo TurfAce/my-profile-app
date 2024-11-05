@@ -1,3 +1,5 @@
+//RegisterPage.js
+
 import React, { useState } from 'react';
 
 const RegisterPage = () => {
@@ -12,11 +14,6 @@ const RegisterPage = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     // ここでバックエンドAPIに登録リクエストを送信する
-//     console.log(formData);
-//   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

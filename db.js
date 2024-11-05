@@ -19,11 +19,10 @@ db.serialize(() => {
 
   // プロフィールテーブルの作成
   db.run(`CREATE TABLE IF NOT EXISTS profiles (
-    user_id INTEGER,
+    user_id INTEGER PRIMARY KEY,
     bio TEXT,
     profile_picture_url TEXT,
     social_links TEXT,
-    PRIMARY KEY (user_id)
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   )`);
 });
