@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './Loginpage.css';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -34,11 +35,13 @@ function LoginPage() {
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-      <button type="submit">ログイン</button>
-    </form>
+    <div className='login-container'>
+      <form className='login-form' onSubmit={handleLogin}>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+        <button type="submit">ログイン</button>
+      </form>
+    </div>
   );
 }
 

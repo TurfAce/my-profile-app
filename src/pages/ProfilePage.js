@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import './ProfilePage.css';
 
 function UserProfilePage() {
   const { userId } = useParams();
@@ -55,10 +56,10 @@ function UserProfilePage() {
   };
 
   return (
-    <div>
+    <div className="profile-container">
       <h2>プロフィール</h2>
       {editMode ? (
-        <div>
+        <div className="profile-edit-form">
           <input
             type="text"
             name="bio"
@@ -84,7 +85,7 @@ function UserProfilePage() {
           <button onClick={() => setEditMode(false)}>キャンセル</button>
         </div>
       ) : (
-        <div>
+        <div className="profile-card">
           {profile.profile_picture_url ? (
             <img src={profile.profile_picture_url} alt="Profile" />
           ) : (
@@ -92,7 +93,7 @@ function UserProfilePage() {
           )}
           <p>{profile.bio || '自己紹介がありません'}</p>
           <p>ソーシャルリンク: {profile.social_links || 'リンクがありません'}</p>
-          <button onClick={() => setEditMode(true)}>プロフィール編集</button>
+          <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
         </div>
       )}
     </div>

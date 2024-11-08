@@ -1,38 +1,53 @@
-.App {
+/* App.css */
+
+/* 背景色 */
+body {
+  background-color: #00a2ff;
+  font-family: Arial, sans-serif;
+}
+
+/* メインコンテンツのレイアウト */
+div {
+  margin: 0 auto;
+  background-color: #007BFF;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+/* ヘッダーのスタイル */
+h2 {
+  color: #333;
   text-align: center;
+  margin-bottom: 20px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* ボタンの基本スタイル */
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+/* プライマリーボタン */
+button.primary {
+  background-color: #007BFF;
   color: white;
+  font-size: 16px;
 }
 
-.App-link {
-  color: #61dafb;
+/* セカンダリーボタン */
+button.secondary {
+  background-color: #6c757d;
+  color: white;
+  font-size: 16px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* フォームの入力フィールド */
+input {
+  padding: 10px;
+  margin-bottom: 10px;
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ddd;
 }

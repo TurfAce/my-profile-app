@@ -1,6 +1,7 @@
 //RegisterPage.js
 
 import React, { useState } from 'react';
+import './registerpage.css';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -39,9 +40,9 @@ const RegisterPage = () => {
   
 
   return (
-    <div style={{ textAlign: 'center', marginTop: '20px' }}>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="register-container">
+      <form className="register-form" onSubmit={handleSubmit}>
+        <h2>Register</h2>
         <input
           type="text"
           name="username"
@@ -49,7 +50,6 @@ const RegisterPage = () => {
           value={formData.username}
           onChange={handleChange}
           required
-          style={{ display: 'block', margin: '10px auto', padding: '10px' }}
         />
         <input
           type="email"
@@ -58,7 +58,6 @@ const RegisterPage = () => {
           value={formData.email}
           onChange={handleChange}
           required
-          style={{ display: 'block', margin: '10px auto', padding: '10px' }}
         />
         <input
           type="password"
@@ -67,7 +66,6 @@ const RegisterPage = () => {
           value={formData.password}
           onChange={handleChange}
           required
-          style={{ display: 'block', margin: '10px auto', padding: '10px' }}
         />
         <button type="submit">Register</button>
       </form>
