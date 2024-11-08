@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import Modal from './Modal'; // モーダルコンポーネントをインポート
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFacebook, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import './ProfilePage.css';
 
 function UserProfilePage() {
@@ -10,9 +13,9 @@ function UserProfilePage() {
     social_links: ''
   });
   const [editMode, setEditMode] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false); // 画像読み込み状態
 
   useEffect(() => {
-    // Fetch user profile data
     fetch(`http://localhost:5000/login/${userId}`)
       .then((response) => {
         if (!response.ok) {
@@ -55,11 +58,59 @@ function UserProfilePage() {
       .catch((error) => console.error('Error during fetch:', error));
   };
 
+  // 画像が読み込まれたらフェードインさせるための関数
+  const handleImageLoad = () => {
+    setImageLoaded(true);
+  };
+
+  // ソーシャルリンクに対応するアイコンを表示する関数
+  const renderSocialLinks = (links) => {
+    return links.split(',').map((link) => {
+      if (link.includes('facebook.com')) {
+        return (
+          <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
+            <FontAwesomeIcon icon={faFacebook} size="2x" />
+          </a>
+        );
+      } else if (link.includes('x.com')) {
+        return (
+          <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
+            <FontAwesomeIcon icon={faTwitter} size="2x" />
+          </a>
+        );
+      } else if (link.includes('instagram.com')) {
+        return (
+          <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
+            <FontAwesomeIcon icon={faInstagram} size="2x" />
+          </a>
+        );
+      }
+      return null; // 他のリンクの場合
+    });
+  };
+
   return (
     <div className="profile-container">
       <h2>プロフィール</h2>
-      {editMode ? (
+      <div className="profile-card">
+        {profile.profile_picture_url ? (
+          <img
+            src={profile.profile_picture_url}
+            alt="Profile"
+            className={imageLoaded ? 'fade-in' : 'hidden'}
+            onLoad={handleImageLoad} // 画像読み込み完了時にフェードイン
+          />
+        ) : (
+          <p>プロフィール画像がありません</p>
+        )}
+        <p>{profile.bio || '自己紹介がありません'}</p>
+        <p>ソーシャルリンク: {profile.social_links ? renderSocialLinks(profile.social_links) : 'リンクがありません'}</p>
+        <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
+      </div>
+
+      <Modal isOpen={editMode} onClose={() => setEditMode(false)}>
         <div className="profile-edit-form">
+          <h2>プロフィールを編集</h2>
           <input
             type="text"
             name="bio"
@@ -79,23 +130,14 @@ function UserProfilePage() {
             name="social_links"
             value={profile.social_links || ''}
             onChange={handleInputChange}
-            placeholder="ソーシャルリンクを入力"
+            placeholder="ソーシャルリンクを入力（,で区切る）"
           />
-          <button onClick={handleSave}>保存</button>
-          <button onClick={() => setEditMode(false)}>キャンセル</button>
+          <div className="modal-actions">
+            <button onClick={() => setEditMode(false)}>キャンセル</button>
+            <button onClick={handleSave}>保存</button>
+          </div>
         </div>
-      ) : (
-        <div className="profile-card">
-          {profile.profile_picture_url ? (
-            <img src={profile.profile_picture_url} alt="Profile" />
-          ) : (
-            <p>プロフィール画像がありません</p>
-          )}
-          <p>{profile.bio || '自己紹介がありません'}</p>
-          <p>ソーシャルリンク: {profile.social_links || 'リンクがありません'}</p>
-          <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
-        </div>
-      )}
+      </Modal>
     </div>
   );
 }

@@ -8,16 +8,41 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+.profile-container img{
+  opacity: 0;
+  transition: opacity 1s ease-in;
+}
+
+.profile-container img.visible{
+  opacity: 1;
+}
+
+
+/* プロフィールカード内のテキストのフォントサイズを大きくする */
+.profile-card p {
+  font-size: 18px; /* 文字のサイズを18pxに設定（お好みで調整） */
+  line-height: 1.6; /* 行間を少し広げて、読みやすくする */
+  color: #333; /* 文字色を少し暗く設定 */
+}
+
+/* プロフィールカード内の見出しを大きくする */
+.profile-container h2 {
+  font-size: 24px; /* 見出しの文字サイズを大きく設定 */
+  margin-bottom: 20px; /* 見出しとプロフィールの間隔を広げる */
+  text-align: center;
+}
+
 .profile-card {
   display: flex;
   flex-direction: column;
   align-items: center;
+
 }
 
 .profile-img {
   border-radius: 50%;
-  width: 100px;
-  height: 100px;
+  width: 50px;
+  height: 50px;
   object-fit: cover;
   margin-bottom: 20px;
 }
@@ -49,4 +74,103 @@ button.primary {
 button.secondary {
   background-color: #6c757d;
   color: white;
+}
+
+/* ProfilePage.css */
+
+.profile-page {
+  padding: 20px;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-actions button:first-child {
+  background-color: #ccc;
+}
+
+.modal-actions button:last-child {
+  background-color: #28a745;
+  color: white;
+}
+
+img.fade-in{
+  opacity: 1;
+  transition: opacity 1s ease-in;
+}
+
+img.hidden {
+  opacity: 0;
+}
+
+/* ボタンのホバーエフェクト */
+.primary {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.primary:hover {
+  background-color: #0056b3;
+  transform: scale(1.05); /* ボタンのサイズを少し大きくする */
+}
+
+/* モーダル内ボタンのアニメーション */
+.modal-actions button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.modal-actions button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05); /* ボタンのサイズを少し大きくする */
+}
+
+/* プロフィール画像を小さくし、丸く表示する */
+.profile-card img {
+  width: 200px; /* 画像の幅を80pxに設定 */
+  height: 200px; /* 画像の高さも80pxに設定 */
+  border-radius: 80%; /* 丸い形にする */
+  object-fit: cover; /* 画像の切り抜き方を指定（画像が丸く収まるように） */
+  transition: opacity 0.5s ease-in-out; /* フェードイン効果 */
+}
+
+/* 画像が読み込まれる前に非表示にする */
+.profile-card img.hidden {
+  opacity: 0;
+}
+
+/* 画像が読み込まれたらフェードインさせる */
+.profile-card img.fade-in {
+  opacity: 1;
+}
+
+.profile-card a {
+  margin-right: 10px; /* アイコン間の間隔 */
+  color: #333; /* アイコンの色 */
+  transition: color 0.3s ease; /* ホバー時の色変更のアニメーション */
+}
+
+.profile-card a:hover {
+  color: #007bff; /* ホバー時の色（お好みで変更） */
 }

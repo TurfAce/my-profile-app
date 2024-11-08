@@ -24,7 +24,7 @@
   }
   
   .login-form input {
-    width: 100%;
+    width: 80%;
     padding: 12px;
     margin: 10px 0;
     border: 1px solid #ddd;
@@ -50,5 +50,27 @@
   .login-form button:focus {
     outline: none;
     border-color: #007BFF;
+  }
+  
+  /* ログインボタンのアニメーション */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s ease-in-out;
+    border-radius: 5px; /* ボタンを少し丸くする */
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+    transform: scale(1.1); /* ボタンを少し大きくする */
+  }
+  
+  /* ボタンを押したときのアニメーション */
+  button:active {
+    transform: scale(0.98); /* クリック時に少し縮む */
   }
   
