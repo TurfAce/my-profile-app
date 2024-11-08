@@ -47,6 +47,7 @@ function UserProfilePage() {
           console.error('Error updating profile:', data.error);
         } else {
           console.log('Profile updated successfully:', data);
+          setProfile(data);
           setEditMode(false);
         }
       })

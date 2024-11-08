@@ -18,7 +18,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/login/:userId" element={<ProfilePage />} />
-          <Route path="/profile/:userId" element={<ProfilePage />} />
+          {/* <Route path="/profile/:userId" element={<ProfilePage />} /> */}
         </Routes>
       </div>
     </Router>
