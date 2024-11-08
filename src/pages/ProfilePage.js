@@ -33,12 +33,18 @@ function UserProfilePage() {
   };
 
   const handleSave = () => {
+    // social_linksを文字列化
+    const profileToSave = {
+      ...profile,
+      social_links: JSON.stringify(profile.social_links),  // ここで配列を文字列に変換
+    };
+  
     fetch(`http://localhost:5000/login/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(profile),
+      body: JSON.stringify(profileToSave),  // profileToSaveを送信
     })
       .then((response) => {
         if (!response.ok) {
@@ -51,13 +57,13 @@ function UserProfilePage() {
           console.error('Error updating profile:', data.error);
         } else {
           console.log('Profile updated successfully:', data);
-          setProfile(profile);
+          setProfile({...profile, social_links: JSON.parse(profileToSave.social_links)});
           setEditMode(false);
         }
       })
       .catch((error) => console.error('Error during fetch:', error));
   };
-
+  
   // 画像が読み込まれたらフェードインさせるための関数
   const handleImageLoad = () => {
     setImageLoaded(true);
