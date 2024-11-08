@@ -12,7 +12,7 @@ function UserProfilePage() {
 
   useEffect(() => {
     // Fetch user profile data
-    fetch(`http://localhost:5000/profile/${userId}`)
+    fetch(`http://localhost:5000/login/${userId}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -29,7 +29,7 @@ function UserProfilePage() {
   };
 
   const handleSave = () => {
-    fetch(`http://localhost:5000/profile/${userId}`, {
+    fetch(`http://localhost:5000/login/${userId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ function UserProfilePage() {
           console.error('Error updating profile:', data.error);
         } else {
           console.log('Profile updated successfully:', data);
-          setProfile(data);
+          setProfile(profile);
           setEditMode(false);
         }
       })

@@ -96,7 +96,7 @@ app.post('/profile', (req, res) => {
   });
   
 // プロフィール取得エンドポイント
-app.get('/profile/:userId', (req, res) => {
+app.get('/login/:userId', (req, res) => {
   const userId = req.params.userId;
   const sql = 'SELECT * FROM profiles WHERE user_id = ?';
 
@@ -112,7 +112,7 @@ app.get('/profile/:userId', (req, res) => {
 });
 
 // プロフィール更新エンドポイント
-app.put('/profile/:userId', (req, res) => {
+app.put('/login/:userId', (req, res) => {
   const userId = req.params.userId;
   const { bio, profile_picture_url, social_links } = req.body;
 
