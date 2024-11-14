@@ -1,5 +1,6 @@
 //LoginPage.js
-
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase'; 
 
 
 import React, { useState } from 'react';
@@ -11,29 +12,18 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    fetch('http://localhost:5000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.userId) {
-        // ログイン成功時にユーザーIDを含めたURLにリダイレクト
-        navigate(`/login/${data.userId}`);
-      } else {
-        alert('ログインに失敗しました');
-      }
-    })
-    .catch(error => {
-      console.error('Login error:', error);
-    });
-  };
 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      localStorage.setItem('userId', userCredential.user.uid);   
+      navigate(`/login/${userCredential.user.uid}`); // ここでリダイレクトを追加
+    } catch(error) {
+      console.error('Login error:', error);
+    }
+  };
+  
   return (
     <div className='login-container'>
       <form className='login-form' onSubmit={handleLogin}>
