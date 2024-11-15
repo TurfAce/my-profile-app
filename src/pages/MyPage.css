@@ -53,7 +53,7 @@
   justify-content: center;
 }
 
-.profile-button, .profile-card {
+.profile-button, .profile-card2{
   background-color: white;
   padding: 15px;
   border: 1px solid #ddd;
@@ -108,5 +108,14 @@
 
 .social-links a:hover {
   color: #007bff;
+}
+
+
+.profile-icon {
+  width: 50px; /* アイコンの幅 */
+  height: 50px; /* アイコンの高さ */
+  border-radius: 50%; /* 円形にする */
+  object-fit: cover; /* 画像を切り抜いてフィットさせる */
+  margin-right: 10px; /* テキストとの間隔を追加 */
 }
 

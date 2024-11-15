@@ -110,7 +110,7 @@ function MyPage() {
 
       {/* アイコン表示 */}
       <div className="icon-display">
-        <span className="icon-placeholder">アイコン</span> {/* 今は文字でアイコンを表示 */}
+        <span className="icon-placeholder">マイページ</span> {/* 今は文字でアイコンを表示 */}
       </div>
 
       {/* 検索ボックス */}
@@ -146,7 +146,12 @@ function MyPage() {
         <div className="profile-list">
           {filteredUsers.length > 0 ? (
             filteredUsers.map((user) => (
-              <div key={user.id} className="profile-card">
+              <div key={user.id} className="profile-card2">
+                <img 
+                  src={user.profile_picture_url || '/default-icon.png'} // デフォルトアイコンを設定
+                  alt={`${user.username}のアイコン`}
+                  className="profile-icon"
+                />
                 <p>{user.username}</p>
                 <button onClick={() => handleExchangeProfile(user.id)}>交換する</button>
               </div>

@@ -77,7 +77,7 @@ function ProfileDetail({ userId }) {
       </div>
 
       {/* 交換リクエストボタン */}
-      <button onClick={handleSendRequest}>交換リクエストを送る</button>
+      {/* <button onClick={handleSendRequest}>交換リクエストを送る</button> */}
     </div>
   );
 }
