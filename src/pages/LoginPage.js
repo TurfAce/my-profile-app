@@ -18,7 +18,7 @@ function LoginPage() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       localStorage.setItem('userId', userCredential.user.uid);   
-      navigate(`/login/${userCredential.user.uid}`); // ここでリダイレクトを追加
+      navigate(`/mypage/${userCredential.user.uid}`); // ここでリダイレクトを追加
     } catch(error) {
       console.error('Login error:', error);
     }

@@ -1,11 +1,11 @@
 // UserProfilePage.js
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Modal from './Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { db } from './firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc,} from 'firebase/firestore';
 import './ProfilePage.css';
 
 function UserProfilePage() {
@@ -17,6 +17,7 @@ function UserProfilePage() {
   });
   const [editMode, setEditMode] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -40,6 +41,12 @@ function UserProfilePage() {
       const userDoc = doc(db, 'users', userId);
       await updateDoc(userDoc, profile);
       setEditMode(false);
+
+      const isNewuser = localStorage.getItem('isNewuser') === 'true';
+      if(isNewuser){
+        localStorage.setItem('isNewuser', 'false');
+      }
+      navigate(`/mypage/${userId}`);
     } catch (error) {
       console.error('Error updating profile:', error);
     }
@@ -71,6 +78,8 @@ function UserProfilePage() {
       return null;
     });
 
+
+    
   return (
     <div className="profile-container">
       <h2>プロフィール</h2>
@@ -94,7 +103,6 @@ function UserProfilePage() {
 
       <Modal isOpen={editMode} onClose={() => setEditMode(false)}>
         <div className="profile-edit-form">
-          <h2>プロフィールを編集</h2>
           <input
             type="text"
             name="bio"

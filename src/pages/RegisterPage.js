@@ -6,6 +6,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebase'; // Firebaseのインポートを適切なパスに変更
 import { doc, setDoc } from "firebase/firestore";
 import { db } from './firebase';
+import { useNavigate } from 'react-router-dom';
 
 
 const RegisterPage = () => {
@@ -14,6 +15,7 @@ const RegisterPage = () => {
     email: '',
     password: ''
   });
+  const navigate = useNavigate();
 
     const handleChange = (e) => {
       const { name, value} = e.target;
@@ -63,6 +65,9 @@ const RegisterPage = () => {
         uid: userCredential.user.uid
       });
 
+      localStorage.setItem('userCredential.user.uid', userCredential.user.uid);
+      localStorage.setItem('isNewuser', 'true');
+      navigate(`/login/${userCredential.user.uid}`)
       console.log("User data saved to Firestore");
     }catch (error){
       console.log('Error during regstration:', error);
