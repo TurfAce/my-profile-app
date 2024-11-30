@@ -78,7 +78,9 @@ function UserProfilePage() {
       return null;
     });
 
-
+  const handleEditProfile = () => {
+    navigate(`/mypage/${userId}`);
+  }
     
   return (
     <div className="profile-container">
@@ -98,7 +100,9 @@ function UserProfilePage() {
         <p>
           ソーシャルリンク: {profile.social_links ? renderSocialLinks(profile.social_links) : 'リンクがありません'}
         </p>
+        {/* TODO じぶんのページのとき (userId が一致する) ときのみ表示/操作可能にする */}
         <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
+        <button className="primary" onClick={handleEditProfile}>マイページへ</button>
       </div>
 
       <Modal isOpen={editMode} onClose={() => setEditMode(false)}>

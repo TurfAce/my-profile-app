@@ -88,7 +88,11 @@ function MyPage() {
   };
 
   const handleEditProfile = () => {
-    navigate('/login/{userId}');
+    navigate(`/login/${currentUserId}`);
+  }
+
+  const jumpToAnProfile = (userId) => {
+    navigate(`/login/${userId}`);
   }
 
   const sendRequest = async (targetUserId) => {
@@ -190,7 +194,7 @@ function MyPage() {
     }
   
     return (
-      <div className="profile-detail">
+      <div className="profile-detail" onClick={() => jumpToAnProfile(userId)}>
         <h3>{profile.username}</h3>
         <p>{profile.bio}</p>
         {/* 他のプロフィール情報 */}
