@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './MyPage.css';
 import ProfileDetail from './ProfileDetail';  // ProfileDetailのインポート
 
+import { useAuth } from '../AuthContext';
 import { db } from './firebase';
 import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
 
@@ -14,6 +15,7 @@ function MyPage() {
   const [sentRequests, setSentRequests] = useState([]);
   const [receivedRequests, setReceivedRequests] = useState([]);
   const currentUserId = localStorage.getItem('userId');
+  const { user } = useAuth();
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -295,6 +297,15 @@ function MyPage() {
               <p>承認待ちのリクエストはありません。</p>
             )}
           </div>
+        </div>
+
+        {/* login 情報を使用する例 */}
+        <div>
+          {user ? (
+            <h1>Welcome, {user.email}! ({user.uid})</h1>
+          ) : (
+            <h1>Please sign in</h1>
+          )}
         </div>
       </div>
     );

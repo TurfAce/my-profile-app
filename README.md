@@ -1,3 +1,24 @@
+# My Profile app
+
+## 使い方
+
+Docker が使えるなら、VS Code devcontainer で開くと node の version などの環境が揃うので便利です。
+
+あとは以下のようにして開発環境を起動できます。
+
+```console
+npm install
+npm start
+```
+
+[localhost:3000](localhost:3000) が自動で開きます。
+
+## 認証について
+
+認証後に無認証状態に戻すには、devtool Application tab を開き、Application > Storage を表示して "Clear site data" を実行します。Incognito も併用すると便利です。
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

@@ -6,9 +6,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { db } from './firebase';
 import { doc, getDoc, updateDoc,} from 'firebase/firestore';
+import { useAuth } from '../AuthContext';
 import './ProfilePage.css';
 
 function UserProfilePage() {
+  const { user } = useAuth();
   const { userId } = useParams();
   const [profile, setProfile] = useState({
     bio: '',
@@ -100,9 +102,16 @@ function UserProfilePage() {
         <p>
           ソーシャルリンク: {profile.social_links ? renderSocialLinks(profile.social_links) : 'リンクがありません'}
         </p>
-        {/* TODO じぶんのページのとき (userId が一致する) ときのみ表示/操作可能にする */}
-        <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
-        <button className="primary" onClick={handleEditProfile}>マイページへ</button>
+        {/* じぶんのページのとき (userId が一致する) ときのみ操作ボタンを表示する */}
+        {user && user.uid == userId ? (
+          <div>
+            <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
+            <button className="primary" onClick={handleEditProfile}>マイページへ</button>
+          </div>
+        ) : (
+          <div><span>(Other's card or not signed in)</span></div>
+        )
+        }
       </div>
 
       <Modal isOpen={editMode} onClose={() => setEditMode(false)}>
