@@ -35,6 +35,11 @@
   color: #333;
 }
 
+.search-box {
+  text-align: center;
+  color: #333;
+}
+
 .exchanged-profiles, .exchange-section {
   margin-bottom: 40px;
 }
