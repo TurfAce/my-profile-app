@@ -5,7 +5,7 @@ import ProfileDetail from './ProfileDetail';  // ProfileDetailのインポート
 
 import { useAuth } from '../AuthContext';
 import { db } from './firebase';
-import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
 
 function MyPage() {
   const [exchangedProfiles, setExchangedProfiles] = useState([]);
@@ -165,28 +165,60 @@ function MyPage() {
   const ProfileDetail = ({ userId }) => {
     const [profile, setProfile] = useState(null);
     const [canView, setCanView] = useState(false); // 閲覧権限
-  
+    const [note, setNote] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
+
     const currentUserId = localStorage.getItem('userId');
   
     useEffect(() => {
-      const fetchProfileAndAccess = async () => {
-        const currentUserRef = doc(db, 'users', currentUserId);
-        const currentUserDoc = await getDoc(currentUserRef);
-  
-        if (currentUserDoc.exists()) {
-          const exchangedProfiles = currentUserDoc.data().exchangedProfiles || [];
+      const fetchData = async () => {
+        try {
+          const currentUserRef = doc(db, 'users', currentUserId);
+          const currentUserDoc = await getDoc(currentUserRef);
+          const exchangedProfiles = currentUserDoc.exists()
+            ? currentUserDoc.data().exchangedProfiles || []
+            : [];
           setCanView(exchangedProfiles.includes(userId));
-        }
-  
-        const userDoc = await getDoc(doc(db, 'users', userId));
-        if (userDoc.exists()) {
-          setProfile(userDoc.data());
+    
+          const userDoc = await getDoc(doc(db, 'users', userId));
+          if (userDoc.exists()) {
+            setProfile(userDoc.data());
+          }
+    
+          const noteRef = doc(db, 'users', currentUserId, 'privateNotes', userId);
+          const noteDoc = await getDoc(noteRef);
+          if (noteDoc.exists()) {
+            setNote(noteDoc.data().note);
+          }
+        } catch (error) {
+          console.error('データ取得エラー:', error);
         }
       };
-  
-      fetchProfileAndAccess();
+    
+      fetchData();
     }, [userId, currentUserId]);
-  
+    
+    const saveNote = async () => {
+      setIsSaving(true);
+      const noteRef = doc(db, 'users', currentUserId, 'privateNotes', userId);
+      try {
+        await setDoc(
+          noteRef,
+          {
+            note,
+            updatedAt: new Date(),
+          },
+          { merge: true }
+        );
+        alert('メモが保存されました');
+      } catch (error) {
+        console.error('メモ保存エラー:', error);
+        alert('メモの保存に失敗しました');
+      } finally {
+        setIsSaving(false);
+      }
+    };
+      
     if (!canView) {
       return <p>このプロフィールを閲覧する権限がありません。</p>;
     }
@@ -196,14 +228,22 @@ function MyPage() {
     }
   
     return (
-      <div className="profile-detail" onClick={() => jumpToAnProfile(userId)}>
+      <div>
         <h3>{profile.username}</h3>
         <p>{profile.bio}</p>
         {/* 他のプロフィール情報 */}
+        <h3>メモ</h3>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="ここにメモを入力してください"
+        />
+        <button onClick={saveNote} disabled={isSaving}>
+          {isSaving ? '保存中...' : '保存する'}
+        </button>
       </div>
     );
-  };
-  
+  };  
 
   
   // プロフィール交換処理
