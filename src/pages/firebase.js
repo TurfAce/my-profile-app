@@ -3,6 +3,9 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, addDoc, arrayUnion } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
+import { BehaviorSubject } from 'rxjs';
+import { onAuthStateChanged } from 'firebase/auth';
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyALmu7TdY_Xaq8BXVlmwkhLwBCyL84QLIo",   // ウェブ API キー
@@ -18,8 +21,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-export { db, auth, collection, doc, setDoc, getDoc, updateDoc, addDoc, arrayUnion };
+const authState$ = new BehaviorSubject(null);
+onAuthStateChanged(auth, (user) => {
+  authState$.next(user ? user.uid : null);
+});
 
+export { db, auth, collection, doc, setDoc, getDoc, updateDoc, addDoc, arrayUnion };
+export { authState$ };
 export const storage = getStorage(app);
 
 // リクエスト送信
