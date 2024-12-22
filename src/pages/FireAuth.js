@@ -1,48 +1,55 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './firebase';
-import './SignupPage.css'; // 必要ならスタイルファイルを作成してください
+// import React, { useEffect } from 'react';
+// import firebase from 'firebase/compat/app';
+// import 'firebase/compat/auth';
+// import * as firebaseui from 'firebaseui';
+// import 'firebaseui/dist/firebaseui.css';
+// import { useNavigate } from 'react-router-dom';
 
-function SignupPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+// function LoginPage() {
+//   const navigate = useNavigate();
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    try {
-      // 新規登録
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // 登録成功後、自動的にログイン
-      localStorage.setItem('userId', userCredential.user.uid);
-      navigate(`/mypage/${userCredential.user.uid}`);
-    } catch (error) {
-      console.error('Signup error:', error);
-      alert('登録に失敗しました。もう一度お試しください。');
-    }
-  };
+//   useEffect(() => {
+//     // FirebaseUI Config
+//     const uiConfig = {
+//       callbacks: {
+//         signInSuccessWithAuthResult: (authResult) => {
+//           // サインイン成功時にリダイレクト
+//           const userId = authResult.user.uid;
+//           localStorage.setItem('userId', userId);
+//           navigate(`/mypage/${userId}`);
+//           return false; // ページリロードを防ぐ
+//         },
+//         uiShown: () => {
+//           // ローダーを隠す処理をここで記述可能
+//           console.log('FirebaseUI widget displayed.');
+//         },
+//       },
+//       signInFlow: 'popup', // ポップアップフローを使用
+//       signInOptions: [
+//         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+//         firebase.auth.EmailAuthProvider.PROVIDER_ID,
+//         firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+//       ],
+//       tosUrl: '/terms', // 利用規約ページ
+//       privacyPolicyUrl: '/privacy', // プライバシーポリシーページ
+//     };
 
-  return (
-    <div className='signup-container'>
-      <form className='signup-form' onSubmit={handleSignup}>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-        />
-        <button type="submit">登録</button>
-      </form>
-    </div>
-  );
-}
+//     // FirebaseUIの初期化
+//     const ui = firebaseui.auth.AuthUI.getInstance() || new firebaseui.auth.AuthUI(firebase.auth());
+//     ui.start('#firebaseui-auth-container', uiConfig);
 
-export default SignupPage;
+//     // クリーンアップ
+//     return () => {
+//       ui.reset();
+//     };
+//   }, [navigate]);
+
+//   return (
+//     <div className="login-container">
+//       <h1>ログイン</h1>
+//       <div id="firebaseui-auth-container"></div>
+//     </div>
+//   );
+// }
+
+// export default LoginPage;
