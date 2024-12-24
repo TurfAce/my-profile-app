@@ -3,9 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import './MyPage.css';
 import ProfileDetail from './ProfileDetail';  // ProfileDetailのインポート
 
+import { QRCodeCanvas } from 'qrcode.react';
 import { useAuth } from '../AuthContext';
 import { db } from './firebase';
 import { doc, getDoc, updateDoc, setDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
+
+
+import { QrReader } from 'react-qr-scanner';
+
 
 function MyPage() {
   const [exchangedProfiles, setExchangedProfiles] = useState([]);
@@ -13,6 +18,8 @@ function MyPage() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sentRequests, setSentRequests] = useState([]);
+  const [isQRCodeVisible, setIsQRCodeVisible] = useState(false); // QRコード表示状態
+  const [isQRScannerVisible, setIsQRScannerVisible] = useState(false); // QRスキャナー表示状態
   const [receivedRequests, setReceivedRequests] = useState([]);
   const currentUserId = localStorage.getItem('userId');
   const { user } = useAuth();
@@ -124,7 +131,75 @@ function MyPage() {
       alert('リクエスト送信に失敗しました。もう一度お試しください。');
     }
   };
-      
+
+  const handleQRScan = (userId) => {
+    alert(`QR scan simasita: ${userId}`);
+    setIsQRScannerVisible(false);
+  }
+
+  const handleQRScannerToggle = () => {
+    setIsQRScannerVisible(!isQRScannerVisible);
+    setIsQRCodeVisible(false);
+  }
+
+  const handleQRCodeToggle = () => { 
+    setIsQRCodeVisible(!isQRCodeVisible);
+    setIsQRScannerVisible(false);
+  }
+
+  const QRCodeGenerator = ({ userId }) => {
+    const qrValue = `your-app://exchange/${userId}`; // QRコードのデータ
+
+    return (
+      <div className="qr-code-container">
+        <h3>QRコードをスキャンしてプロフィールを交換</h3>
+        <QRCodeCanvas value={qrValue} size={150} />
+      </div>
+    );
+  };
+
+  const QRCodeScanner = ({ onScan }) => {
+    const [error, setError] = useState('');
+  
+    const handleScan = (data) => {
+      if (data) {
+        const userId = data.replace('your-app://exchange/', '');
+        onScan(userId);
+      }
+    };
+  
+    const handleError = (err) => {
+      console.error('QRコードスキャンエラー:', err);
+      setError('QRコードをスキャンできませんでした。もう一度試してください。');
+    };
+  
+    return (
+      <div className="qr-scanner-container">
+        <h3>QRコードをスキャンしてリクエスト送信</h3>
+        <QrReader
+          delay={300}
+          onError={handleError}
+          onResult={(result, error) => {
+            if (result) handleScan(result.text);
+          }}
+          style={{ width: '100%' }}
+        />
+        {error && <p className="error-message">{error}</p>}
+                {/* QRコード生成とスキャンセクション */}
+                <div className="qr-code-section">
+          <QRCodeGenerator userId={currentUserId} />
+          <QRCodeScanner onScan={handleScan} />
+        </div>
+
+      </div>
+    );
+
+    
+  };
+  
+  
+
+        
 
   const approveRequest = async (fromUserId) => {
     const currentUserRef = doc(db, 'users', currentUserId);
@@ -245,6 +320,8 @@ function MyPage() {
     );
   };  
 
+
+
   
   // プロフィール交換処理
     return (
@@ -252,6 +329,17 @@ function MyPage() {
         {/* カード編集ボタン */}
         <div className="edit-button-container">
           <button className="edit-button" onClick={handleEditProfile}>カード編集</button>
+        </div>
+
+        <div className='qr-buttons'>
+          <button onClick={handleQRCodeToggle}>
+            {isQRCodeVisible ? 'Close QR' : 'Open QR'}
+          </button>
+          <button onClick={handleQRScannerToggle}>
+            {isQRScannerVisible ? 'Close scanner' : 'Open scanner'}
+          </button>
+          {isQRCodeVisible && <QRCodeGenerator userId={currentUserId} />}
+          {isQRScannerVisible && <QRCodeScanner />}
         </div>
     
         {/* アイコン表示 */}
@@ -317,7 +405,8 @@ function MyPage() {
             )}
           </div>
         </div>
-    
+            
+
         {/* 承認リクエスト管理セクション */}
         <div className="approve-section">
           <h2>承認リクエスト</h2>
@@ -348,6 +437,8 @@ function MyPage() {
           )}
         </div>
       </div>
+
+      
     );
   }
 
