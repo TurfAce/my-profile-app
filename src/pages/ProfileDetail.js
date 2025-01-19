@@ -52,28 +52,32 @@ function ProfileDetail({ userId }) {
       <h3>{profile.username}</h3>
       <p>{profile.bio}</p>
       <div className="social-links">
-        {profile.social_links.split(',').map((link) => {
-          if (link.includes('facebook.com')) {
-            return (
-              <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
-                <FontAwesomeIcon icon={faFacebook} size="2x" />
-              </a>
-            );
-          } else if (link.includes('x.com')) {
-            return (
-              <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
-                <FontAwesomeIcon icon={faTwitter} size="2x" />
-              </a>
-            );
-          } else if (link.includes('instagram.com')) {
-            return (
-              <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
-                <FontAwesomeIcon icon={faInstagram} size="2x" />
-              </a>
-            );
-          }
-          return null;
-        })}
+        {profile.social_links ? (
+          profile.social_links.split(',').map((link) => {
+            if (link.includes('facebook.com')) {
+              return (
+                <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
+                  <FontAwesomeIcon icon={faFacebook} size="2x" />
+                </a>
+              );
+            } else if (link.includes('x.com')) {
+              return (
+                <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
+                  <FontAwesomeIcon icon={faTwitter} size="2x" />
+                </a>
+              );
+            } else if (link.includes('instagram.com')) {
+              return (
+                <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
+                  <FontAwesomeIcon icon={faInstagram} size="2x" />
+                </a>
+              );
+            }
+            return null;
+          })
+        ) : (
+          <p>ソーシャルリンクがありません</p>
+        )}
       </div>
 
       {/* 交換リクエストボタン */}
