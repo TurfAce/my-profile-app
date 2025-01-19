@@ -5,7 +5,7 @@ import ProfileDetail from './ProfileDetail';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useAuth } from '../AuthContext';
 import { db } from './firebase';
-import { doc, getDoc, updateDoc, setDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
 import QrScanner from 'react-qr-scanner';
 
 function MyPage() {
@@ -121,9 +121,12 @@ function MyPage() {
     }
   };
 
-  const handleQRScan = (data) => {
-    if (data) {
-      alert(`QRコードをスキャンしました: ${data}`);
+  const handleQRScan = (scannedData) => {
+    if (scannedData) {
+      // URLからユーザーIDを抽出
+      const userId = scannedData.replace('http://localhost:3000/mypage/', '');
+      alert(`QRコードをスキャンしました: ${userId}`);
+      sendRequest(userId);
       setIsQRScannerVisible(false);
     }
   };
@@ -152,12 +155,12 @@ function MyPage() {
   const QRCodeScanner = ({ onScan }) => {
     const [error, setError] = useState('');
 
-    const handleScan = (data) => {
-      if (data) {
+    const handleScan = (result) => {
+      if (result) {
+        const data = result.text; // result.textにQRコードの文字列データが含まれます
+        console.log('Scanned data:', data); // デバッグ用ログ出力
         try {
-          const userId = data.includes('your-app://exchange/') 
-            ? data.replace('your-app://exchange/', '') 
-            : data;
+          const userId = data.replace('http://localhost:3000/mypage/', '');
           onScan(userId);
         } catch (err) {
           console.error('スキャンデータの処理エラー:', err);
@@ -184,7 +187,7 @@ function MyPage() {
           onScan={handleScan}
           style={previewStyle}
           onResult={(result, error) => {
-            if (result) handleScan(result.text);
+            if (result) handleScan(result);
           }}
         />
         {error && <p className="error-message">{error}</p>}
