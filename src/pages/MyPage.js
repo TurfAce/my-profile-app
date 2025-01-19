@@ -5,7 +5,7 @@ import ProfileDetail from './ProfileDetail';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useAuth } from '../AuthContext';
 import { db } from './firebase';
-import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, setDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
 import QrScanner from 'react-qr-scanner';
 
 function MyPage() {
@@ -130,7 +130,7 @@ function MyPage() {
       setIsQRScannerVisible(false);
     }
   };
-
+  
   const handleQRScannerToggle = () => {
     setIsQRScannerVisible(!isQRScannerVisible);
     setIsQRCodeVisible(false);
@@ -157,10 +157,10 @@ function MyPage() {
 
     const handleScan = (result) => {
       if (result) {
-        const data = result.text; // result.textにQRコードの文字列データが含まれます
-        console.log('Scanned data:', data); // デバッグ用ログ出力
+        const data = result.text;
+        console.log('Scanned data:', data);
         try {
-          const userId = data.replace('http://localhost:3000/mypage/', '');
+          const userId = data.repleace('http://localhost:3000/mypage/', '') 
           onScan(userId);
         } catch (err) {
           console.error('スキャンデータの処理エラー:', err);
@@ -187,7 +187,7 @@ function MyPage() {
           onScan={handleScan}
           style={previewStyle}
           onResult={(result, error) => {
-            if (result) handleScan(result);
+            if (result) handleScan(result.text);
           }}
         />
         {error && <p className="error-message">{error}</p>}
