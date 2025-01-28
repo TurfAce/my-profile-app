@@ -1,34 +1,32 @@
 // firebase.js
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, addDoc, arrayUnion } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, addDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 import { BehaviorSubject } from 'rxjs';
 import { onAuthStateChanged } from 'firebase/auth';
 
-
 const firebaseConfig = {
-  apiKey: "AIzaSyALmu7TdY_Xaq8BXVlmwkhLwBCyL84QLIo",   // ウェブ API キー
-  authDomain: "sample-firebase-ai-app-44ce8.firebaseapp.com",  // authDomainは「プロジェクトID.firebaseapp.com」という形式になります
-  projectId: "sample-firebase-ai-app-44ce8",   // プロジェクト ID
-  storageBucket: "sample-firebase-ai-app-44ce8.appspot.com",  // storageBucketは「プロジェクトID.appspot.com」という形式になります
-  messagingSenderId: "758556239321",   // プロジェクト番号
-  appId: "1:758556239321:web:df80139013e0b05da465c8"  // appIdは、アプリ追加後にFirebaseコンソールの「Firebase SDKの設定」画面で表示されます
-
+  apiKey: "AIzaSyALmu7TdY_Xaq8BXVlmwkhLwBCyL84QLIo",
+  authDomain: "sample-firebase-ai-app-44ce8.firebaseapp.com",
+  projectId: "sample-firebase-ai-app-44ce8",
+  storageBucket: "sample-firebase-ai-app-44ce8.appspot.com",
+  messagingSenderId: "758556239321",
+  appId: "1:758556239321:web:df80139013e0b05da465c8"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const storage = getStorage(app);
 
-const authState$ = new BehaviorSubject(null);
+export { provider, db, auth, collection, doc, setDoc, getDoc, updateDoc, addDoc, arrayUnion, arrayRemove };
+export const authState$ = new BehaviorSubject(null);
+
 onAuthStateChanged(auth, (user) => {
   authState$.next(user ? user.uid : null);
 });
-
-export { db, auth, collection, doc, setDoc, getDoc, updateDoc, addDoc, arrayUnion };
-export { authState$ };
-export const storage = getStorage(app);
 
 // リクエスト送信
 export const sendExchangeRequest = async (currentUserId, targetUserId) => {

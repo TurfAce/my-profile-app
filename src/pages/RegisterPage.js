@@ -2,12 +2,10 @@
 
 import React, { useState } from 'react';
 import './registerpage.css';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './firebase'; // Firebaseのインポートを適切なパスに変更
+import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { auth, db } from './firebase'; // Firebaseのインポートを適切なパスに変更
 import { doc, setDoc } from "firebase/firestore";
-import { db } from './firebase';
 import { useNavigate } from 'react-router-dom';
-
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -17,66 +15,57 @@ const RegisterPage = () => {
   });
   const navigate = useNavigate();
 
-    const handleChange = (e) => {
-      const { name, value} = e.target;
-      setFormData({ ...formData, [name]: value });
-    }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  }
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     // Firebase Authでユーザーを登録
-  //     const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-  //     console.log('User registered with Firebase:', userCredential.user);
-
-  //     // ユーザー情報をサーバーに送信
-  //     const response = await fetch('http://localhost:5000/register', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify({
-  //         username: formData.username,
-  //         email: formData.email,
-  //         uid: userCredential.user.uid // FirebaseのUIDをサーバーに送信
-  //       })
-  //     });
-
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       console.log(data.message); // サーバーからのレスポンスを表示
-  //     } else {
-  //       console.error('Registration failed on server');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error during registration:', error);
-  //   }
-  // };
-
-  const handlesubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try{
+    try {
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       console.log('User registered with Firebase:', userCredential.user);
 
-      await setDoc(doc(db, "users", userCredential.user.uid),{
+      await setDoc(doc(db, "users", userCredential.user.uid), {
         username: formData.username,
         email: formData.email,
         uid: userCredential.user.uid
       });
 
-      localStorage.setItem('userCredential.user.uid', userCredential.user.uid);
-      localStorage.setItem('isNewuser', 'true');
-      navigate(`/login/${userCredential.user.uid}`)
+      localStorage.setItem('userId', userCredential.user.uid);
+      localStorage.setItem('isNewUser', 'true');
+      navigate(`/login/${userCredential.user.uid}`);
       console.log("User data saved to Firestore");
-    }catch (error){
-      console.log('Error during regstration:', error);
+    } catch (error) {
+      console.log('Error during registration:', error);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Firestoreにユーザー情報を保存
+      await setDoc(doc(db, "users", user.uid), {
+        username: user.displayName,
+        email: user.email,
+        uid: user.uid
+      });
+
+      localStorage.setItem('userId', user.uid);
+      localStorage.setItem('isNewUser', 'true');
+      navigate(`/login/${user.uid}`);
+      console.log("User data saved to Firestore");
+    } catch (error) {
+      console.log('Error during Google sign-up:', error);
     }
   };
 
   return (
     <div className="register-container">
-      <form className="register-form" onSubmit={handlesubmit}>
+      <form className="register-form" onSubmit={handleSubmit}>
         <h2>Register</h2>
         <input
           type="text"
@@ -104,6 +93,7 @@ const RegisterPage = () => {
         />
         <button type="submit">Register</button>
       </form>
+      <button onClick={handleGoogleSignUp}>Sign up with Google</button>
     </div>
   );
 };
