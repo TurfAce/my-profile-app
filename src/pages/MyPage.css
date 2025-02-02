@@ -1,11 +1,58 @@
-/* MyPage.css */
+body {
+  font-family: "Montserrat", sans-serif;
+  background: linear-gradient(35deg, #ffffff, #000000); /* グラデーション */
+  color: #ecf0f1;
+  margin: 0;
+  padding: 20px;
+}
+
+h1, h2, h3, h4, h5, h6, .profile-list {
+  font-family: "Stick", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  margin-bottom: 20px;
+}
 
 .mypage-container {
   max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #f5f5f5;
+  background: linear-gradient(35deg, #ffffff, #000000); /* グラデーション */
   border-radius: 10px;
+}
+
+.request-card{
+  color:#2c2e2f
+}
+.fa-bell {
+  color: #a1a5a7;
+  position: absolute;
+  top: 50px;
+  right: 25px;
+
+}
+
+.request-list{
+  color: #2c2e2f;
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+
+}
+
+.request-ok-button {
+  background: linear-gradient(45deg, #45404c, #7c8189); /* グラデーション */
+  color: white;
+  font-family: "Montserrat", sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .edit-button-container {
@@ -14,27 +61,82 @@
   margin-bottom: 20px;
 }
 
-.edit-button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
+.edit-button, .profile-card2 button, .qr-buttons button  {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-family: "Stick", sans-serif;
   border: none;
   border-radius: 5px;
+  background: linear-gradient(45deg, #322f35, #72757a); /* グラデーション */
+  color: white;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s; /* アニメーション */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* シャドウ */
 }
 
-.edit-button:hover {
-  background-color: #0056b3;
+.search-button{
+  padding: 12px 24px;
+  font-size: 16px;
+  font-family: "Stick", sans-serif;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(45deg, #322f35, #72757a); /* グラデーション */
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s; /* アニメーション */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* シャドウ */
+  position:absolute;
+  top: 25px;
+  right: 220px;
+}
+
+
+.edit-button:hover, .profile-card2 button:hover, .qr-buttons button:hover {
+  background: linear-gradient(45deg, #322f35, #72757a); /* ホバー時のグラデーション反転 */
+  transform: scale(1.05); /* ホバー時に少し拡大 */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* ホバー時のシャドウ強化 */
+}
+
+.edit-button:active, .profile-card2 button:active, .qr-buttons button:active {
+  transform: scale(0.98); /* クリック時に少し縮む */
+}
+
+.edit-button:focus, .profile-card2 button:focus, .qr-buttons button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.5); /* フォーカス時のアウトライン */
+}
+
+.notification-icon {
+  position: absolute;
+  cursor: pointer;
+  font-size: 24px;
+  color: #ecf0f1;
+  top: 50px;
+  right: 220px;
+}
+
+.notification-icon .notification-count {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px 10px;
+  font-size: 12px;
 }
 
 .icon-display {
-  text-align: center;
-  margin-bottom: 30px;
-  font-size: 30px;
-  color: #333;
+  position: absolute;
+  top: 20px;
+  right: 650px;
+  margin-bottom: 10px;
+  font-size: 80px;
+  font-family: "Stick", sans-serif; /* フォントを指定 */
+  color: rgba(0, 0, 0, 0.2); /* テキストの色と不透明度を指定 */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5), /* 影の設定 */
+               -1px -1px 2px rgba(255, 255, 255, 0.5); /* 反対方向の影の設定 */
 }
-
 .search-box {
   text-align: center;
   color: #333;
@@ -46,8 +148,7 @@
 
 .exchanged-profiles h2, .exchange-section h2 {
   font-size: 24px;
-  color: #007bff;
-  margin-bottom: 20px;
+  color: #2c2e2f;
   text-align: center;
 }
 
@@ -56,9 +157,11 @@
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
+  color: #54575a;
+  text-shadow: 2px 2px 4px rgba(100, 100, 100, 0.6);
 }
 
-.profile-button, .profile-card2{
+.profile-button, .profile-card2 {
   background-color: white;
   padding: 15px;
   border: 1px solid #ddd;
@@ -68,25 +171,10 @@
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.profile-card p {
+.profile-card2 p {
   margin-bottom: 10px;
   font-weight: bold;
 }
-
-.profile-card button {
-  padding: 8px 16px;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.profile-card button:hover {
-  background-color: #218838;
-}
-
 
 /* MyPage.css の追加スタイル */
 
@@ -115,7 +203,6 @@
   color: #007bff;
 }
 
-
 .profile-icon {
   width: 50px; /* アイコンの幅 */
   height: 50px; /* アイコンの高さ */
@@ -124,3 +211,13 @@
   margin-right: 10px; /* テキストとの間隔を追加 */
 }
 
+.qr-code-container, .qr-scanner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 中央寄せ */
+}
+
+.qr-scanner-container .error-message {
+  color: red;
+  margin-top: 10px;
+}

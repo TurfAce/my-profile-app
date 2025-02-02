@@ -5,8 +5,9 @@ import ProfileDetail from './ProfileDetail';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useAuth } from '../AuthContext';
 import { db } from './firebase';
-import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, collection, getDocs } from 'firebase/firestore';
 import QrScanner from 'react-qr-scanner';
+import Modal from './Modal'; // モーダルコンポーネントをインポート
 
 function MyPage() {
   const [exchangedProfiles, setExchangedProfiles] = useState([]);
@@ -14,9 +15,11 @@ function MyPage() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sentRequests, setSentRequests] = useState([]);
-  const [isQRCodeVisible, setIsQRCodeVisible] = useState(false); // QRコード表示状態
-  const [isQRScannerVisible, setIsQRScannerVisible] = useState(false); // QRスキャナー表示状態
+  const [isQRCodeVisible, setIsQRCodeVisible] = useState(false); // QRコード表示モーダル状態
+  const [isQRScannerVisible, setIsQRScannerVisible] = useState(false); // QRスキャナー表示モーダル状態
   const [receivedRequests, setReceivedRequests] = useState([]);
+  const [isRequestModalVisible, setIsRequestModalVisible] = useState(false); // 交換リクエスト表示モーダル状態
+  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false); // 検索バー表示モーダル状態
   const currentUserId = localStorage.getItem('userId');
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -141,6 +144,32 @@ function MyPage() {
     setIsQRScannerVisible(false);
   }
 
+  const handleRequestModalToggle = async () => {
+    if (!isRequestModalVisible) {
+      // ユーザーが通知モーダルを開いたときに通知を既読としてマーク
+      const currentUserRef = doc(db, 'users', currentUserId);
+      const currentUserDoc = await getDoc(currentUserRef);
+      if (currentUserDoc.exists()) {
+        const userData = currentUserDoc.data();
+        if (userData.receivedRequests) { // receivedRequestsが存在するか確認
+          const updatedRequests = userData.receivedRequests.map((req) => ({
+            ...req,
+            read: true, // 既読としてマーク
+          }));
+          await updateDoc(currentUserRef, {
+            receivedRequests: updatedRequests,
+          });
+          setReceivedRequests(updatedRequests);
+        }
+      }
+    }
+    setIsRequestModalVisible(!isRequestModalVisible);
+  };
+
+  const handleSearchModalToggle = () => {
+    setIsSearchModalVisible(!isSearchModalVisible);
+  };
+
   const QRCodeGenerator = ({ userId }) => {
     const qrValue = `http://localhost:3000/mypage/${userId}`;
 
@@ -202,9 +231,7 @@ function MyPage() {
     try {
       const currentUserDoc = await getDoc(currentUserRef);
       const currentUserData = currentUserDoc.data();
-      const updatedReceivedRequests = currentUserData.receivedRequests.map((req) =>
-        req.fromUserId === fromUserId ? { ...req, status: 'approved' } : req
-      );
+      const updatedReceivedRequests = currentUserData.receivedRequests.filter((req) => req.fromUserId !== fromUserId);
 
       await updateDoc(currentUserRef, {
         receivedRequests: updatedReceivedRequests,
@@ -213,9 +240,7 @@ function MyPage() {
 
       const fromUserDoc = await getDoc(fromUserRef);
       const fromUserData = fromUserDoc.data();
-      const updatedSentRequests = fromUserData.sentRequests.map((req) =>
-        req.targetUserId === currentUserId ? { ...req, status: 'approved' } : req
-      );
+      const updatedSentRequests = fromUserData.sentRequests.filter((req) => req.targetUserId !== currentUserId);
 
       await updateDoc(fromUserRef, {
         sentRequests: updatedSentRequests,
@@ -223,16 +248,30 @@ function MyPage() {
       });
 
       alert('リクエストを承認しました');
+      setReceivedRequests(updatedReceivedRequests);
     } catch (error) {
       console.error('リクエスト承認エラー:', error);
       alert('リクエスト承認に失敗しました。');
     }
   };
 
+  const countUnreadRequests = () => {
+    return receivedRequests.filter(req => !req.read).length;
+  };
+
   return (
     <div className="mypage-container">
-      <div className="edit-button-container">
-        <button className="edit-button" onClick={handleEditProfile}>カード編集</button>
+      <div className="header">
+        <div className="edit-button-container">
+          <button className="edit-button" onClick={handleEditProfile}>EDIT</button>
+        </div>
+        <div className="notification-icon" onClick={handleRequestModalToggle}>
+          <i className="fas fa-bell"></i>
+          {countUnreadRequests() > 0 && <span className="notification-count">{countUnreadRequests()}</span>}
+        </div>
+        <div className="search-button-container">
+          <button className="search-button" onClick={handleSearchModalToggle}>検索</button>
+        </div>
       </div>
 
       <div className='qr-buttons'>
@@ -242,25 +281,69 @@ function MyPage() {
         <button onClick={handleQRScannerToggle}>
           {isQRScannerVisible ? 'Close scanner' : 'Open scanner'}
         </button>
-        {isQRCodeVisible && <QRCodeGenerator userId={currentUserId} />}
-        {isQRScannerVisible && <QRCodeScanner onScan={handleQRScan} />}
       </div>
+
+      <Modal isOpen={isQRCodeVisible} onClose={handleQRCodeToggle}>
+        <QRCodeGenerator userId={currentUserId} />
+      </Modal>
+
+      <Modal isOpen={isQRScannerVisible} onClose={handleQRScannerToggle}>
+        <QRCodeScanner onScan={handleQRScan} />
+      </Modal>
+
+      <Modal isOpen={isRequestModalVisible} onClose={handleRequestModalToggle}>
+        <div className="request-list">
+          {receivedRequests.length > 0 ? (
+            receivedRequests.map((req) => (
+              <div key={req.fromUserId} className="request-card">
+                <p>{req.fromUserId} からのリクエスト</p>
+                {req.status === 'pending' ? (
+                  <button onClick={() => approveRequest(req.fromUserId)}>承認する</button>
+                ) : (
+                  <p>承認済み</p>
+                )}
+              </div>
+            ))
+          ) : (
+            <p>承認待ちのリクエストはありません。</p>
+          )}
+        </div>
+      </Modal>
+
+      <Modal isOpen={isSearchModalVisible} onClose={handleSearchModalToggle}>
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="名前で検索"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+          <div className="profile-list">
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => (
+                <div key={user.id} className="profile-card">
+                  <img
+                    src={user.profile_picture_url || '/default-icon.png'}
+                    alt={`${user.username}のアイコン`}
+                    className="profile-icon"
+                  />
+                  <p>{user.username}</p>
+                  <button onClick={() => jumpToAnProfile(user.id)}>プロフィールを見る</button>
+                </div>
+              ))
+            ) : (
+              <p>検索結果に一致するユーザーがいません。</p>
+            )}
+          </div>
+        </div>
+      </Modal>
 
       <div className="icon-display">
-        <span className="icon-placeholder">マイページ</span>
-      </div>
-
-      <div className="search-box">
-        <input
-          type="text"
-          placeholder="名前で検索"
-          value={searchQuery}
-          onChange={handleSearchChange}
-        />
+        <span className="icon-placeholder">MeIsi</span>
       </div>
 
       <div className="exchanged-profiles">
-        <h2>交換したプロフィール</h2>
+        <h2>フレンドのプロフィール</h2>
         <div className="profile-list">
           {exchangedProfiles.length > 0 ? (
             exchangedProfiles.map((profileId) => (
@@ -274,7 +357,7 @@ function MyPage() {
         </div>
       </div>
 
-      <div className="exchange-section">
+      {/* <div className="exchange-section">
         <h2>他のユーザーとプロフィールを交換</h2>
         <div className="profile-list">
           {filteredUsers.length > 0 ? (
@@ -304,10 +387,9 @@ function MyPage() {
             <p>検索結果に一致するユーザーがいません。</p>
           )}
         </div>
-      </div>
+      </div> */}
 
-      <div className="approve-section">
-        <h2>承認リクエスト</h2>
+      {/* <div className="approve-section">
         <div className="request-list">
           {receivedRequests.length > 0 ? (
             receivedRequests.map((req) => (
@@ -324,15 +406,7 @@ function MyPage() {
             <p>承認待ちのリクエストはありません。</p>
           )}
         </div>
-      </div>
-
-      <div>
-        {user ? (
-          <h1>Welcome, {user.email}! ({user.uid})</h1>
-        ) : (
-          <h1>Please sign in</h1>
-        )}
-      </div>
+      </div> */}
     </div>
   );
 }

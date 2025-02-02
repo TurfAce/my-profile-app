@@ -1,76 +1,88 @@
-/* RegisterPage.css */
+/* registerpage.css */
 
 .register-container {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 100vh;
-    background-color: #f4f4f4;
-  }
-  
-  .register-form {
-    background-color: white;
-    padding: 40px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-  }
-  
-  .register-form h2 {
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
-  .register-form input {
-    width: 80%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-  }
-  
-  .register-form button {
-    width: 100%;
-    padding: 12px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .register-form button:hover {
-    background-color: #218838;
-  }
-  
-  .register-form input:focus,
-  .register-form button:focus {
-    outline: none;
-    border-color: #28a745;
-  }
-  
-  /* 登録ボタンのアニメーション */
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    background-color: #28a745;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s ease-in-out;
-    border-radius: 5px; /* ボタンを少し丸くする */
-  }
-  
-  button:hover {
-    background-color: #218838;
-    transform: scale(1.1); /* ボタンを少し大きくする */
-  }
-  
-  /* ボタンを押したときのアニメーション */
-  button:active {
-    transform: scale(0.98); /* クリック時に少し縮む */
-  }
-  
+  display: flex;
+  font-family: "Raggae One", sans-serif;
+
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.register-form {
+  background-color: white;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.register-form h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.register-form input {
+  width: 80%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.register-form button {
+  width: 100%;
+  padding: 12px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.register-form button:hover {
+  background-color: #218838;
+}
+
+.register-form input:focus,
+.register-form button:focus {
+  outline: none;
+  border-color: #28a745;
+}
+
+.google-signup-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.google-signup-container p {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Googleサインアップボタンのスタイル */
+.google-signup-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #db4437;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s ease-in-out;
+}
+
+.google-signup-button:hover {
+  background-color: #c33d2e;
+  transform: scale(1.1);
+}
+
+.google-signup-button:active {
+  transform: scale(0.98);
+}

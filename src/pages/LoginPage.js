@@ -43,11 +43,17 @@ function LoginPage() {
   return (
     <div className='login-container'>
       <form className='login-form' onSubmit={handleLogin}>
+        <h2>Login</h2>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
         <button type="submit">ログイン</button>
       </form>
-      <button onClick={handleGoogleSignIn}>Googleでログイン</button>
+      <div className="google-login-container">
+        <p>Googleアカウントでログインする方はこちら:</p>
+        <button className="google-login-button" onClick={handleGoogleSignIn}>
+          Sign in with Google
+        </button>
+      </div>
     </div>
   );
 }

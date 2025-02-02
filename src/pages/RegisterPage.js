@@ -93,7 +93,10 @@ const RegisterPage = () => {
         />
         <button type="submit">Register</button>
       </form>
-      <button onClick={handleGoogleSignUp}>Sign up with Google</button>
+      <div className="google-signup-container">
+        <p>Googleアカウントでアカウントを作る方はこちら:</p>
+        <button className="google-signup-button" onClick={handleGoogleSignUp}>Sign up with Google</button>
+      </div>
     </div>
   );
 };
