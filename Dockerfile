@@ -1,5 +1,5 @@
 # ビルドステージ
-FROM node:14-alpine AS build
+FROM node:22-alpine AS build
 
 # 作業ディレクトリを作成
 WORKDIR /app
@@ -9,17 +9,16 @@ COPY package*.json ./
 
 # 依存関係をインストール
 RUN npm install
-RUN npm install --save-dev @babel/plugin-proposal-private-property-in-object
-RUN npm install @fortawesome/fontawesome-svg-core
 
 # アプリケーションのソースコードをコピー
 COPY . .
 
 # アプリケーションをビルド
+RUN npm install -g typescript
 RUN npm run build
 
 # 実行ステージ
-FROM node:14-alpine
+FROM node:22-alpine
 
 # 作業ディレクトリを作成
 WORKDIR /app

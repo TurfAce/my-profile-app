@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     open: false,
     port: 3000,
+    allowedHosts: true // TODO put specific names for prod
   },
   build: {
     outDir: 'build'
