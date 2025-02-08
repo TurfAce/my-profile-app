@@ -9,6 +9,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "@vitejs/plugin-react-swc": "^3.7.2",
     "firebase": "^10.5.0",
     "firebaseui": "^6.1.0",
     "qrcode.react": "^4.2.0",
@@ -18,15 +19,18 @@
     "react-native-qrcode-scanner": "^1.5.5",
     "react-qr-scanner": "^1.0.0-alpha.11",
     "react-router-dom": "^6.28.1",
-    "react-scripts": "5.0.1",
     "rxjs": "^7.8.1",
+    "vite": "^6.1.0",
+    "vite-plugin-svgr": "^4.3.0",
+    "vite-tsconfig-paths": "^5.1.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage --watch=false"
   },
   "eslintConfig": {
     "extends": [
@@ -45,5 +49,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.0.5",
+    "jsdom": "^26.0.0",
+    "vitest": "^3.0.5"
   }
 }
