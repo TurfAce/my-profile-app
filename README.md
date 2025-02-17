@@ -18,6 +18,10 @@ npm start
 認証後に無認証状態に戻すには、devtool Application tab を開き、Application > Storage を表示して "Clear site data" を実行します。Incognito も併用すると便利です。
 
 
+##
+
+gcloud run deploy hello --allow-unauthenticated --max-instances=2 --region=us-central1 --cpu=1 --memory=2Gi --port=3000 --image=us-central1-docker.pkg.dev/sample-firebase-ai-app-44ce8/meisi/my-app
+
 
 # Getting Started with Create React App
 

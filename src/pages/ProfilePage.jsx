@@ -1,11 +1,10 @@
-// UserProfilePage.js
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Modal from './Modal2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFacebook, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
-import { db } from './firebase';
-import { doc, getDoc, updateDoc,} from 'firebase/firestore';
+import { faFacebook, faTwitter, faInstagram, faSquareInstagram, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { db } from '../firebase';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../AuthContext';
 import './ProfilePage.css';
 
@@ -13,11 +12,15 @@ function UserProfilePage() {
   const { user } = useAuth();
   const { userId } = useParams();
   const [profile, setProfile] = useState({
+    username: '',
     bio: '',
     profile_picture_url: '',
     social_links: '',
   });
   const [editMode, setEditMode] = useState(false);
+  const [addLinkMode, setAddLinkMode] = useState(false);
+  const [newLinkPlatform, setNewLinkPlatform] = useState('');
+  const [newLinkUserId, setNewLinkUserId] = useState('');
   const [imageLoaded, setImageLoaded] = useState(false);
   const navigate = useNavigate();
 
@@ -45,7 +48,7 @@ function UserProfilePage() {
       setEditMode(false);
 
       const isNewuser = localStorage.getItem('isNewuser') === 'true';
-      if(isNewuser){
+      if (isNewuser) {
         localStorage.setItem('isNewuser', 'false');
       }
       navigate(`/mypage/${userId}`);
@@ -76,14 +79,39 @@ function UserProfilePage() {
             <FontAwesomeIcon icon={faInstagram} size="2x" />
           </a>
         );
+      } else if (link.includes('github.com')) {
+        return (
+          <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
+            <FontAwesomeIcon icon={faGithub} size="2x" />
+          </a>
+        );
       }
       return null;
     });
 
+  const handleAddSocialLink = (platform) => {
+    setNewLinkPlatform(platform);
+    setAddLinkMode(true);
+  };
+
+  const handleAddLinkSave = () => {
+    let newLink = '';
+    if (newLinkPlatform === 'Twitter') {
+      newLink = `https://x.com/${newLinkUserId}`;
+    } else if (newLinkPlatform === 'Instagram') {
+      newLink = `https://instagram.com/${newLinkUserId}`;
+    } else if (newLinkPlatform === 'GitHub') {
+      newLink = `https://github.com/${newLinkUserId}`;
+    }
+    setProfile({ ...profile, social_links: profile.social_links ? `${profile.social_links},${newLink}` : newLink });
+    setAddLinkMode(false);
+    setNewLinkUserId('');
+  };
+
   const handleEditProfile = () => {
     navigate(`/mypage/${userId}`);
-  }
-    
+  };
+
   return (
     <div className="profile-container">
       <h2>プロフィール</h2>
@@ -98,24 +126,31 @@ function UserProfilePage() {
         ) : (
           <p>プロフィール画像がありません</p>
         )}
+        <h3>{profile.username || 'ユーザー名がありません'}</h3>
         <p>{profile.bio || '自己紹介がありません'}</p>
         <p>
           ソーシャルリンク: {profile.social_links ? renderSocialLinks(profile.social_links) : 'リンクがありません'}
         </p>
         {/* じぶんのページのとき (userId が一致する) ときのみ操作ボタンを表示する */}
-        {user && user.uid == userId ? (
+        {user && user.uid === userId ? (
           <div>
             <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
-            <button className="primary" onClick={handleEditProfile}>マイページへ</button>
+            <button className="primary1" onClick={handleEditProfile}>マイページへ</button>
           </div>
         ) : (
           <div><span>(Other's card or not signed in)</span></div>
-        )
-        }
+        )}
       </div>
 
       <Modal isOpen={editMode} onClose={() => setEditMode(false)}>
         <div className="profile-edit-form">
+          <input
+            type="text"
+            name="username"
+            value={profile.username || ''}
+            onChange={handleInputChange}
+            placeholder="ユーザー名を入力"
+          />
           <input
             type="text"
             name="bio"
@@ -135,11 +170,38 @@ function UserProfilePage() {
             name="social_links"
             value={profile.social_links || ''}
             onChange={handleInputChange}
-            placeholder="ソーシャルリンクを入力（,で区切る）"
+            placeholder="ソーシャルリンクを入力"
           />
+          <div className="social-buttons">
+            <button className="twitter-button" onClick={() => handleAddSocialLink('Twitter')}>
+              <FontAwesomeIcon icon={faTwitter} size="xl" /> Twitterリンクを追加
+            </button>
+            <button className="instagram-button" onClick={() => handleAddSocialLink('Instagram')}>
+              <FontAwesomeIcon icon={faSquareInstagram} size="xl" /> Instagramリンクを追加
+            </button>
+            <button className="github-button" onClick={() => handleAddSocialLink('GitHub')}>
+              <FontAwesomeIcon icon={faGithub} size="xl" /> GitHubリンクを追加
+            </button>
+          </div>
           <div className="modal-actions">
             <button onClick={() => setEditMode(false)}>キャンセル</button>
             <button onClick={handleSave}>保存</button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={addLinkMode} onClose={() => setAddLinkMode(false)}>
+        <div className="add-link-form">
+          <h3>{newLinkPlatform}のユーザーIDを入力</h3>
+          <input
+            type="text"
+            value={newLinkUserId}
+            onChange={(e) => setNewLinkUserId(e.target.value)}
+            placeholder={`${newLinkPlatform}のユーザーID`}
+          />
+          <div className="modal-actions">
+            <button onClick={() => setAddLinkMode(false)}>キャンセル</button>
+            <button onClick={handleAddLinkSave}>追加</button>
           </div>
         </div>
       </Modal>

@@ -1,6 +1,6 @@
 // LoginPage.js
 import { onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, provider } from './firebase'; 
+import { auth, provider } from '../firebase'; 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Loginpage.css';
@@ -40,6 +40,7 @@ function LoginPage() {
     }
   };
 
+  
   return (
     <div className='login-container'>
       <form className='login-form' onSubmit={handleLogin}>

@@ -1,9 +1,9 @@
 //ProfileDetail.js
 import React, { useEffect, useState } from 'react';
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { db } from './firebase';
+import { db } from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFacebook, faTwitter, faInstagram } from '@fortawesome/free-brands-svg-icons';
+import { faFacebook, faTwitter, faInstagram, faGithub } from '@fortawesome/free-brands-svg-icons';
 
 function ProfileDetail({ userId }) {
   const [profile, setProfile] = useState(null);
@@ -70,6 +70,12 @@ function ProfileDetail({ userId }) {
               return (
                 <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
                   <FontAwesomeIcon icon={faInstagram} size="2x" />
+                </a>
+              );
+            } else if (link.includes('github.com')) {
+              return (
+                <a href={link} target="_blank" rel="noopener noreferrer" key={link}>
+                  <FontAwesomeIcon icon={faGithub} size="2x" />
                 </a>
               );
             }

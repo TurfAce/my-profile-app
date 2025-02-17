@@ -1,10 +1,8 @@
-// RegisterPage.js
-
 import React, { useState } from 'react';
 import './registerpage.css';
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { auth, db } from './firebase'; // Firebaseのインポートを適切なパスに変更
-import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from '../firebase'; // Firebaseのインポートを適切なパスに変更
+import { doc, setDoc, runTransaction, getDoc } from 'firebase/firestore'; // 必要な関数をインポート
 import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {
@@ -48,10 +46,17 @@ const RegisterPage = () => {
       const user = result.user;
 
       // Firestoreにユーザー情報を保存
-      await setDoc(doc(db, "users", user.uid), {
-        username: user.displayName,
-        email: user.email,
-        uid: user.uid
+      await runTransaction(db, async (transaction) => {
+        const userDoc = doc(db, "users", user.uid);
+        const userDocSnapshot = await transaction.get(userDoc);
+
+        if (!userDocSnapshot.exists()) {
+          transaction.set(userDoc, {
+            username: user.displayName,
+            email: user.email,
+            uid: user.uid
+          });
+        }
       });
 
       localStorage.setItem('userId', user.uid);

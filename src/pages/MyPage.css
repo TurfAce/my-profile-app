@@ -1,7 +1,20 @@
+:root {
+  --theme-color: #e0f7fa;
+  --header-color: #b2ebf2;
+  --button-color: #ffffff;
+  --text-color: #000000;
+  --profile-color: #333333;
+  --icon-color: #000000;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --bell-icon-color: #a4f6ff;
+  --icondisplay-color :#a4f6ff;
+  --text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5), -1px -1px 2px rgba(255, 255, 255, 0.5);
+}
+
 body {
   font-family: "Montserrat", sans-serif;
-  background: linear-gradient(35deg, #ffffff, #000000); /* グラデーション */
-  color: #ecf0f1;
+  background: linear-gradient(135deg, var(--theme-color), var(--header-color));  
+  color: var(--text-color);
   margin: 0;
   padding: 20px;
 }
@@ -11,7 +24,7 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  text-shadow: 2px 2px 4px var(--shadow-color);
   margin-bottom: 20px;
 }
 
@@ -19,33 +32,50 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
-  background: linear-gradient(35deg, #ffffff, #000000); /* グラデーション */
+  background: linear-gradient(35deg, #ffffff, var(--theme-color)); /* グラデーション */
   border-radius: 10px;
 }
 
-.request-card{
-  color:#2c2e2f
+.request-card {
+  color: var(--profile-color);
 }
+
 .fa-bell {
-  color: #a1a5a7;
+  color: var(--bell-icon-color);
   position: absolute;
   top: 50px;
   right: 25px;
-
 }
 
-.request-list{
-  color: #2c2e2f;
+.fa-qrcode,
+.fa-camera {
+  color: var(--icon-color);
+  font-size: 20px; /* アイコンのサイズを20pxに設定 */
+}
+
+.request-list {
+  color: var(--profile-color);
   font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 20px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-
+  text-shadow: 2px 2px 4px var(--shadow-color);
 }
 
+.friendsprofile{
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5), -1px -1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.exchanged-profiles h2{
+  font-size: 24px;
+  color: rgb(0, 0, 0); /* テキストの色と不透明度を指定 */
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5), /* 影の設定 */
+               -1px -1px 2px rgba(255, 255, 255, 0.5); /* 反対方向の影の設定 */
+  text-align: center;
+
+}
 .request-ok-button {
-  background: linear-gradient(45deg, #45404c, #7c8189); /* グラデーション */
-  color: white;
+  background: linear-gradient(45deg, var(--button-color), var(--theme-color)); /* グラデーション */
+  color: var(--text-color);
   font-family: "Montserrat", sans-serif;
 }
 
@@ -61,38 +91,55 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   margin-bottom: 20px;
 }
 
-.edit-button, .profile-card2 button, .qr-buttons button  {
-  padding: 12px 24px;
-  font-size: 16px;
-  font-family: "Stick", sans-serif;
-  border: none;
-  border-radius: 5px;
-  background: linear-gradient(45deg, #322f35, #72757a); /* グラデーション */
-  color: white;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s; /* アニメーション */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* シャドウ */
+.qr-buttons {
+  display: flex;
+  gap: 3px;
 }
 
-.search-button{
+.qr-buttons button {
   padding: 12px 24px;
   font-size: 16px;
   font-family: "Stick", sans-serif;
   border: none;
   border-radius: 5px;
-  background: linear-gradient(45deg, #322f35, #72757a); /* グラデーション */
-  color: white;
+  background: linear-gradient(45deg, var(--button-color), var(--theme-color)); /* グラデーション */
+  color: var(--text-color);
   cursor: pointer;
   transition: background 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s; /* アニメーション */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* シャドウ */
-  position:absolute;
+  box-shadow: 0 4px 8px var(--shadow-color); /* シャドウ */
+}
+
+.edit-button, .profile-card2 button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-family: "Stick", sans-serif;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(45deg, var(--button-color), var(--theme-color)); /* グラデーション */
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s; /* アニメーション */
+  box-shadow: 0 4px 8px var(--shadow-color); /* シャドウ */
+}
+
+.search-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-family: "Stick", sans-serif;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(45deg, var(--button-color), var(--theme-color)); /* グラデーション */
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s; /* アニメーション */
+  box-shadow: 0 4px 8px var(--shadow-color); /* シャドウ */
+  position: absolute;
   top: 25px;
   right: 220px;
 }
 
-
 .edit-button:hover, .profile-card2 button:hover, .qr-buttons button:hover {
-  background: linear-gradient(45deg, #322f35, #72757a); /* ホバー時のグラデーション反転 */
+  background: linear-gradient(45deg, var(--theme-color), var(--button-color)); /* ホバー時のグラデーション反転 */
   transform: scale(1.05); /* ホバー時に少し拡大 */
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* ホバー時のシャドウ強化 */
 }
@@ -103,14 +150,14 @@ h1, h2, h3, h4, h5, h6, .profile-list {
 
 .edit-button:focus, .profile-card2 button:focus, .qr-buttons button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.5); /* フォーカス時のアウトライン */
+  box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.5); /* フォーカス時のアウトライン */
 }
 
 .notification-icon {
   position: absolute;
   cursor: pointer;
   font-size: 24px;
-  color: #ecf0f1;
+  color: var(--icon-color);
   top: 50px;
   right: 220px;
 }
@@ -128,27 +175,29 @@ h1, h2, h3, h4, h5, h6, .profile-list {
 
 .icon-display {
   position: absolute;
-  top: 20px;
+  top: 0px;
   right: 650px;
   margin-bottom: 10px;
   font-size: 80px;
   font-family: "Stick", sans-serif; /* フォントを指定 */
-  color: rgba(0, 0, 0, 0.2); /* テキストの色と不透明度を指定 */
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5), /* 影の設定 */
-               -1px -1px 2px rgba(255, 255, 255, 0.5); /* 反対方向の影の設定 */
+  color: var(--icondisplay-color);
+  text-shadow: var(--text-shadow);
 }
+
 .search-box {
   text-align: center;
-  color: #333;
+  color: var(--profile-color);
 }
 
 .exchanged-profiles, .exchange-section {
   margin-bottom: 40px;
 }
 
-.exchanged-profiles h2, .exchange-section h2 {
+.exchange-section h2 {
   font-size: 24px;
-  color: #2c2e2f;
+  color: rgba(255, 255, 255, 0.2); /* テキストの色と不透明度を指定 */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5), /* 影の設定 */
+               -1px -1px 2px rgba(255, 255, 255, 0.5); /* 反対方向の影の設定 */
   text-align: center;
 }
 
@@ -157,23 +206,40 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
-  color: #54575a;
-  text-shadow: 2px 2px 4px rgba(100, 100, 100, 0.6);
+  color: var(--profile-color);
+  text-shadow: 2px 2px 4px var(--shadow-color);
 }
 
-.profile-button, .profile-card2 {
-  background-color: white;
+.profile-category {
+  margin-bottom: 20px;
+}
+
+.profile-category h3 {
+  margin-bottom: 10px;
+}
+
+.profile-list-horizontal {
+  display: flex;
+  overflow-x: auto;
+  gap: 20px;
+  padding: 10px;
+}
+
+.profile-button {
   padding: 15px;
-  border: 1px solid #ddd;
+  border: 1px solid #555;
   border-radius: 8px;
   width: 200px;
   text-align: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px var(--shadow-color);
+  flex: 0 0 auto; /* 横スクロールのために追加 */
+  color: var(--profile-color);
 }
 
-.profile-card2 p {
+.profile-card p {
   margin-bottom: 10px;
   font-weight: bold;
+  font-size: 20px;
 }
 
 /* MyPage.css の追加スタイル */
@@ -195,12 +261,12 @@ h1, h2, h3, h4, h5, h6, .profile-list {
 
 .social-links a {
   margin: 0 5px;
-  color: #333;
+  color: var(--profile-color);
   transition: color 0.3s;
 }
 
 .social-links a:hover {
-  color: #007bff;
+  color: #ff6f61;
 }
 
 .profile-icon {
@@ -220,4 +286,127 @@ h1, h2, h3, h4, h5, h6, .profile-list {
 .qr-scanner-container .error-message {
   color: red;
   margin-top: 10px;
+}
+
+/* スマホ向けのスタイル */
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .mypage-container {
+    padding: 10px;
+  }
+
+  h1, h2, h3, h4, h5, h6, .profile-list {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .edit-button, .profile-card2 button, .qr-buttons button, .search-button {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+
+  .notification-icon {
+    top: 20px;
+    right: 10px;
+  }
+  .search-button {
+    top: 20px;
+    right: 18px;
+  }
+
+
+  .profile-list {
+    padding: 0 20px;
+    margin: 0 auto;
+  }
+
+  .profile-list-horizontal {
+    padding: 0 10px;
+    margin: 0 auto;
+  }
+
+  .profile-button, .profile-card {
+    width: 80%;
+    margin-bottom: 10px;
+    height: 400px; /* 高さを追加 */
+    padding: 20px; /* パディングを追加 */
+    margin: auto;
+  }
+
+  .profile-button p {
+    font-size: 20px;
+  }
+
+  .profile-detail {
+    padding: 0 10px;
+    margin-top: 50px;
+  }
+
+  .icon-display {
+    top: -20px;
+    right: 100px;
+    align-items: center;
+  }
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--theme-color);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  box-shadow: 0 -2px 5px var(--shadow-color);
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-family: "Stick", sans-serif;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.bottom-nav button i {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.bottom-nav button:hover {
+  color: #03a9f4;
+}
+
+.settings-list {
+  text-align: center;
+  color: #000000;
+}
+
+.settings-option {
+  margin: 10px 0;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-family: "Montserrat", sans-serif;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(45deg, var(--button-color), var(--theme-color));
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s ease-in-out, box-shadow 0.3s;
+  box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.settings-option:hover {
+  background: linear-gradient(45deg, var(--theme-color), var(--button-color));
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }

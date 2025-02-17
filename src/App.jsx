@@ -7,7 +7,7 @@ import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import MyPage from './pages/MyPage';
 // import FireAuth from './pages/FireAuth'
-import { authState$ } from './pages/firebase'; // Firebase の Observable をインポート
+import { authState$ } from './firebase'; // Firebase の Observable をインポート
 
 function App() {
   const [userId, setUserId] = useState(null);

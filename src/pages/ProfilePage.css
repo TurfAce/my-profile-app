@@ -1,4 +1,3 @@
-/* ProfilePage.css */
 .profile-container {
   max-width: 800px;
   margin: 0 auto;
@@ -8,15 +7,14 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.profile-container img{
+.profile-container img {
   opacity: 0;
   transition: opacity 1s ease-in;
 }
 
-.profile-container img.visible{
+.profile-container img.visible {
   opacity: 1;
 }
-
 
 /* プロフィールカード内のテキストのフォントサイズを大きくする */
 .profile-card p {
@@ -36,7 +34,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
 }
 
 .profile-img {
@@ -73,7 +70,16 @@ button.primary {
   background: linear-gradient(45deg, #322f35, #72757a); /* グラデーション */
   color: white;
   margin: 2px;
+  display: inline-block;
 }
+
+button.primary1 {
+  background: linear-gradient(45deg, #322f35, #72757a); /* グラデーション */
+  color: white;
+  margin: 2px;
+  display: inline-block;
+}
+
 
 button.secondary {
   background-color: #6c757d;
@@ -109,7 +115,7 @@ button.secondary {
   color: white;
 }
 
-img.fade-in{
+img.fade-in {
   opacity: 1;
   transition: opacity 1s ease-in;
 }
@@ -133,6 +139,22 @@ img.hidden {
   background-color: #0056b3;
   transform: scale(1.05); /* ボタンのサイズを少し大きくする */
 }
+
+.primary1 {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.primary1:hover {
+  background-color: #0056b3;
+  transform: scale(1.05); /* ボタンのサイズを少し大きくする */
+}
+
 
 /* モーダル内ボタンのアニメーション */
 .modal-actions button {
@@ -177,4 +199,55 @@ img.hidden {
 
 .profile-card a:hover {
   color: #007bff; /* ホバー時の色（お好みで変更） */
+}
+
+.social-buttons {
+  display: inline-block;
+  flex-direction: column;
+  gap: 10px; /* ボタン間の間隔を設定 */
+}
+
+.social-buttons button {
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+  margin: 5px 0;
+}
+
+.social-buttons .twitter-button {
+  background-color: #1DA1F2; /* Twitterの色 */
+}
+
+.social-buttons .instagram-button {
+  background: -webkit-linear-gradient(135deg, #427eff 0%, #f13f79 70%) no-repeat;
+  background: linear-gradient(135deg, #427eff 0%, #f13f79 70%) no-repeat;/*グラデーション①*/
+  overflow: hidden;/*はみ出た部分を隠す*/
+}
+
+.social-buttons button:hover {
+  transform: scale(1.01); /* ボタンのサイズを少し大きくする */
+}
+
+.social-buttons .github-button {
+  background-color: #333; /* GitHubの色 */
+}
+
+@media (max-width: 600px) {
+  button.primary {
+    display: inline-block;
+    font-size: 13px;
+  }
+  button.primary1 {
+    display: inline-block;
+    font-size: 13px;
+  }
+
+  
 }
