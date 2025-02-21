@@ -4,7 +4,7 @@ import Modal from './Modal2';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faTwitter, faInstagram, faSquareInstagram, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { db } from '../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../AuthContext';
 import './ProfilePage.css';
 
@@ -16,19 +16,27 @@ function UserProfilePage() {
     bio: '',
     profile_picture_url: '',
     social_links: '',
+    additionalInfo: '',
+    lastUpdated: null,
   });
   const [editMode, setEditMode] = useState(false);
   const [addLinkMode, setAddLinkMode] = useState(false);
   const [newLinkPlatform, setNewLinkPlatform] = useState('');
   const [newLinkUserId, setNewLinkUserId] = useState('');
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [backText, setBackText] = useState('');
+  const [lastUpdated, setLastUpdated] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
-        setProfile(userDoc.data());
+        const userData = userDoc.data();
+        setProfile(userData);
+        setBackText(userData.additionalInfo || '');
+        setLastUpdated(userData.lastUpdated?.toDate() || null);
       } else {
         console.error('No such document!');
       }
@@ -108,8 +116,28 @@ function UserProfilePage() {
     setNewLinkUserId('');
   };
 
-  const handleEditProfile = () => {
-    navigate(`/mypage/${userId}`);
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  const handleBackTextChange = (event) => {
+    setBackText(event.target.value);
+  };
+
+  const handleSaveBackText = async () => {
+    if (lastUpdated && (new Date() - lastUpdated) < 24 * 60 * 60 * 1000) {
+      alert('裏面の情報は1日に一度のみ変更できます。');
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, 'users', userId);
+      await updateDoc(userDocRef, { additionalInfo: backText, lastUpdated: serverTimestamp() });
+      setLastUpdated(new Date());
+      alert('裏面の情報を保存しました');
+    } catch (error) {
+      console.error('裏面の情報保存中にエラーが発生しました', error);
+    }
   };
 
   return (
@@ -131,14 +159,31 @@ function UserProfilePage() {
         <p>
           ソーシャルリンク: {profile.social_links ? renderSocialLinks(profile.social_links) : 'リンクがありません'}
         </p>
-        {/* じぶんのページのとき (userId が一致する) ときのみ操作ボタンを表示する */}
-        {user && user.uid === userId ? (
-          <div>
-            <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
-            <button className="primary1" onClick={handleEditProfile}>マイページへ</button>
+        <button onClick={handleFlip}>
+          {isFlipped ? '表面を見る' : '裏面を見る'}
+        </button>
+        {isFlipped ? (
+          <div className="profile-back">
+            <p>裏面の情報</p>
+            <p>{profile.additionalInfo}</p>
+            {user && user.uid === userId && (
+              <div>
+                <textarea value={backText} onChange={handleBackTextChange} />
+                <button onClick={handleSaveBackText}>保存</button>
+              </div>
+            )}
           </div>
         ) : (
-          <div><span>(Other's card or not signed in)</span></div>
+          <div>
+            {user && user.uid === userId ? (
+              <div>
+                <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
+                <button className="primary1" onClick={() => navigate(`/mypage/${userId}`)}>マイページへ</button>
+              </div>
+            ) : (
+              <div><span>(Other's card or not signed in)</span></div>
+            )}
+          </div>
         )}
       </div>
 

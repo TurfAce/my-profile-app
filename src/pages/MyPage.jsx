@@ -5,7 +5,7 @@ import ProfileDetail from './ProfileDetail';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useAuth } from '../AuthContext';
 import { db } from '../firebase';
-import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs, serverTimestamp } from 'firebase/firestore';
 import QrScanner from 'react-qr-scanner';
 import Modal from './Modal'; // モーダルコンポーネントをインポート
 
@@ -19,8 +19,17 @@ function MyPage() {
   const [isQRScannerVisible, setIsQRScannerVisible] = useState(false); // QRスキャナー表示モーダル状態
   const [receivedRequests, setReceivedRequests] = useState([]);
   const [isRequestModalVisible, setIsRequestModalVisible] = useState(false); // 交換リクエスト表示モーダル状態
-  const [isSearchModalVisible, setIsSearchModalVisible] = useState(false); // 検索バー表示モーダル状態
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false); // 設定モーダル状態
+  const [isLabelModalVisible, setIsLabelModalVisible] = useState(false); // ラベル追加モーダル状態
+  const [isBackTextModalVisible, setIsBackTextModalVisible] = useState(false); // 裏面編集モーダル状態
+  const [currentProfileId, setCurrentProfileId] = useState(''); // 現在のプロフィールID
+  const [newLabel, setNewLabel] = useState(''); // 新しいラベル
+  const [labels, setLabels] = useState({}); // 追加されたラベルのリスト
+  const [isSortModalVisible, setIsSortModalVisible] = useState(false); // ソートモーダル状態
+  const [selectedSortLabel, setSelectedSortLabel] = useState(''); // 選択されたソートラベル
+  const [backText, setBackText] = useState(''); // 裏面のテキスト
+  const [lastUpdated, setLastUpdated] = useState(null); // 最後の更新時刻
+  const [recentlyUpdatedProfiles, setRecentlyUpdatedProfiles] = useState([]); // 最近更新されたプロファイル
   const currentUserId = localStorage.getItem('userId');
   const [theme, setTheme] = useState(null); // 初期値を null に設定
   const { user } = useAuth();
@@ -71,6 +80,22 @@ function MyPage() {
         const data = userDoc.data();
         const profiles = data.exchangedProfiles || [];
         setExchangedProfiles(profiles);
+        setLabels(data.labels || {});
+
+        // Check if profiles were updated within the last 24 hours
+        const now = new Date();
+        const updatedProfiles = [];
+        for (const profileId of profiles) {
+          const profileDoc = await getDoc(doc(db, 'users', profileId));
+          if (profileDoc.exists()) {
+            const profileData = profileDoc.data();
+            const lastUpdated = profileData.lastUpdated ? profileData.lastUpdated.toDate() : null;
+            if (lastUpdated && (now - lastUpdated) < 24 * 60 * 60 * 1000) {
+              updatedProfiles.push(profileId);
+            }
+          }
+        }
+        setRecentlyUpdatedProfiles(updatedProfiles);
       } else {
         console.error('ユーザーが見つかりません');
       }
@@ -78,7 +103,7 @@ function MyPage() {
       console.error('交換済みプロフィールの取得エラー:', error);
     }
   };
-
+  
   const fetchAllUsers = async () => {
     try {
       const usersCollection = collection(db, 'users');
@@ -107,20 +132,6 @@ function MyPage() {
       }
     } catch (error) {
       console.error('リクエストデータの取得エラー:', error);
-    }
-  };
-
-  const handleSearchChange = (event) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-
-    if (query) {
-      const filtered = allUsers.filter((user) =>
-        user.username.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredUsers(filtered);
-    } else {
-      setFilteredUsers([]);
     }
   };
 
@@ -200,12 +211,12 @@ function MyPage() {
     setIsRequestModalVisible(!isRequestModalVisible);
   };
 
-  const handleSearchModalToggle = () => {
-    setIsSearchModalVisible(!isSearchModalVisible);
-  };
-
   const handleSettingsModalToggle = () => {
     setIsSettingsModalVisible(!isSettingsModalVisible);
+  };
+
+  const handleBackTextModalToggle = () => {
+    setIsBackTextModalVisible(!isBackTextModalVisible);
   };
 
   const handleThemeChange = (event) => {
@@ -375,6 +386,72 @@ function MyPage() {
       alert('リクエスト承認に失敗しました。');
     }
   };
+  
+  const addLabelToProfile = async () => {
+    try {
+      const profileRef = doc(db, 'users', currentUserId);
+      const userDoc = await getDoc(profileRef);
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        const updatedLabels = { ...data.labels };
+
+        if (!updatedLabels[currentProfileId]) {
+          updatedLabels[currentProfileId] = [];
+        }
+        updatedLabels[currentProfileId].push(newLabel);
+
+        await updateDoc(profileRef, { labels: updatedLabels });
+        setLabels(updatedLabels);
+        fetchData(); // Refresh the data after adding the label
+        setIsLabelModalVisible(false);
+        setNewLabel('');
+      }
+    } catch (error) {
+      console.error('ラベル追加エラー:', error);
+    }
+  };
+
+  const handleAddLabel = (profileId) => {
+    setCurrentProfileId(profileId);
+    setIsLabelModalVisible(true);
+  };
+
+  const sortProfilesByLabel = (label) => {
+    const sortedProfiles = Object.keys(labels).filter(profileId => {
+      const profileLabels = labels[profileId] || [];
+      return profileLabels.includes(label);
+    });
+    setExchangedProfiles(sortedProfiles);
+    setSelectedSortLabel(label);
+    setIsSortModalVisible(false);
+  };
+
+  const clearSort = () => {
+    fetchExchangedProfiles();
+    setSelectedSortLabel('');
+    setIsSortModalVisible(false);
+  };
+
+  const handleBackTextChange = (event) => {
+    setBackText(event.target.value);
+  };
+
+  const handleSaveBackText = async () => {
+    try {
+      const userDocRef = doc(db, 'users', currentUserId);
+      await updateDoc(userDocRef, { additionalInfo: backText, lastUpdated: serverTimestamp() });
+      setLastUpdated(new Date());
+      alert('裏面の情報を保存しました');
+      setIsBackTextModalVisible(false);
+    } catch (error) {
+      console.error('裏面の情報保存中にエラーが発生しました', error);
+    }
+  };
+
+  const handleViewBackSide = (profileId) => {
+    setRecentlyUpdatedProfiles(recentlyUpdatedProfiles.filter(id => id !== profileId));
+    // Here you can add additional logic to show the back side
+  };
 
   return (
     <div className="mypage-container" style={{ background: 'var(--theme-color)' }}>
@@ -384,7 +461,9 @@ function MyPage() {
           {countUnreadRequests() > 0 && <span className="notification-count">{countUnreadRequests()}</span>}
         </div>
         <div className="search-button-container">
-          <button className="search-button" style={{ background: 'var(--button-color)' }} onClick={handleSearchModalToggle}>検索</button>
+          <button className="search-button" style={{ background: 'var(--button-color)' }} onClick={() => setIsSortModalVisible(true)}>
+            <i className='fa-solid fa-list'></i>
+          </button>
         </div>
       </div>
 
@@ -396,6 +475,14 @@ function MyPage() {
           <i className="fa-solid fa-camera"></i>
         </button>
       </div>
+
+      {selectedSortLabel && (
+        <div className="clear-sort-button-container">
+          <button onClick={clearSort} style={{ background: 'var(--button-color)' }}>
+            ソート解除
+          </button>
+        </div>
+      )}
 
       <Modal isOpen={isQRCodeVisible} onClose={handleQRCodeToggle}>
         <QRCodeGenerator userId={currentUserId} />
@@ -424,35 +511,6 @@ function MyPage() {
         </div>
       </Modal>
 
-      <Modal isOpen={isSearchModalVisible} onClose={handleSearchModalToggle}>
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="名前で検索"
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-          <div className="profile-list">
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <div key={user.id} className="profile-card">
-                  <img
-                    src={user.profile_picture_url || '/default-icon.png'}
-                    alt={`${user.username}のアイコン`}
-                    className="profile-icon"
-                  />
-                  <p>{user.username}</p>
-                  <button onClick={() => jumpToAnProfile(user.id)}>プロフィールを見る</button>
-                </div>
-              ))
-            ) : (
-              <p>検索結果に一致するユーザーがいません。</p>
-            )}
-          </div>
-        </div>
-      </Modal>
-
-
       <Modal isOpen={isSettingsModalVisible} onClose={handleSettingsModalToggle}>
         <div className="settings-list">
           <h2>Settings</h2>
@@ -473,8 +531,49 @@ function MyPage() {
               <input type="radio" value="blue" checked={theme === 'blue'} onChange={handleThemeChange} />
               Blue
             </label>
-
           </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isLabelModalVisible} onClose={() => setIsLabelModalVisible(false)}>
+        <div className="label-box">
+          <h2>ラベルを追加</h2>
+          <input
+            type="text"
+            placeholder="ラベルを入力"
+            value={newLabel}
+            onChange={(e) => setNewLabel(e.target.value)}
+          />
+          <button onClick={addLabelToProfile}>追加</button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isSortModalVisible} onClose={() => setIsSortModalVisible(false)}>
+        <div className="sort-box">
+          <h2>ラベルでソート</h2>
+          <div>
+            {Array.from(new Set(Object.values(labels).flat())).map((label, index) => (
+              <button
+                key={index}
+                className={`label-item ${selectedSortLabel === label ? 'selected' : ''}`}
+                onClick={() => sortProfilesByLabel(label)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Modal>
+
+      <Modal isOpen={isBackTextModalVisible} onClose={handleBackTextModalToggle}>
+        <div className="back-text-box">
+          <h2>裏面の情報を編集</h2>
+          <textarea
+            placeholder="裏面の情報を入力"
+            value={backText}
+            onChange={handleBackTextChange}
+          />
+          <button onClick={handleSaveBackText}>保存</button>
         </div>
       </Modal>
 
@@ -487,8 +586,18 @@ function MyPage() {
         <div className="profile-list-horizontal">
           {exchangedProfiles.length > 0 ? (
             exchangedProfiles.map((profileId) => (
-              <div key={profileId} className="profile-button">
+              <div 
+                key={profileId} 
+                className={`profile-button ${recentlyUpdatedProfiles.includes(profileId) ? 'rainbow-border' : ''}`}
+                onClick={() => handleViewBackSide(profileId)}
+              >
                 <ProfileDetail userId={profileId} />
+                <button className="fa-solid fa-tags" onClick={() => handleAddLabel(profileId)}></button>
+                <div className="label-list">
+                  {labels[profileId] && labels[profileId].map((label, index) => (
+                    <span key={index} className="profile-label">{label}</span>
+                  ))}
+                </div>
               </div>
             ))
           ) : (
@@ -496,6 +605,7 @@ function MyPage() {
           )}
         </div>
       </div>
+
       <div className="bottom-nav">
         <button onClick={handleEditProfile}>
           <i className="fas fa-pencil-alt"></i>
@@ -504,6 +614,10 @@ function MyPage() {
         <button onClick={handleSettingsModalToggle}>
           <i className="fa-solid fa-cog"></i>
           <span>Settings</span>
+        </button>
+        <button onClick={handleBackTextModalToggle}>
+          <i className="fa-solid fa-file-alt"></i>
+          <span>裏面編集</span>
         </button>
       </div>
     </div>
