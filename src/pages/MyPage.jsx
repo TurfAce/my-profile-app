@@ -8,6 +8,7 @@ import { db } from '../firebase';
 import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs, serverTimestamp } from 'firebase/firestore';
 import QrScanner from 'react-qr-scanner';
 import Modal from './Modal'; // モーダルコンポーネントをインポート
+import Cookies from 'js-cookie';
 
 function MyPage() {
   const [exchangedProfiles, setExchangedProfiles] = useState([]);
@@ -30,6 +31,7 @@ function MyPage() {
   const [backText, setBackText] = useState(''); // 裏面のテキスト
   const [lastUpdated, setLastUpdated] = useState(null); // 最後の更新時刻
   const [recentlyUpdatedProfiles, setRecentlyUpdatedProfiles] = useState([]); // 最近更新されたプロファイル
+  const [viewedProfiles, setViewedProfiles] = useState([]); // 表示されたプロファイル
   const currentUserId = localStorage.getItem('userId');
   const [theme, setTheme] = useState(null); // 初期値を null に設定
   const { user } = useAuth();
@@ -48,6 +50,11 @@ function MyPage() {
 
   useEffect(() => {
     fetchData();
+    // クッキーからviewedProfilesを読み込む
+    const viewedProfilesCookie = Cookies.get('viewedProfiles');
+    if (viewedProfilesCookie) {
+      setViewedProfiles(JSON.parse(viewedProfilesCookie));
+    }
   }, [currentUserId]);
 
   const fetchData = async () => {
@@ -103,7 +110,7 @@ function MyPage() {
       console.error('交換済みプロフィールの取得エラー:', error);
     }
   };
-  
+
   const fetchAllUsers = async () => {
     try {
       const usersCollection = collection(db, 'users');
@@ -394,12 +401,12 @@ function MyPage() {
       if (userDoc.exists()) {
         const data = userDoc.data();
         const updatedLabels = { ...data.labels };
-
+  
         if (!updatedLabels[currentProfileId]) {
           updatedLabels[currentProfileId] = [];
         }
         updatedLabels[currentProfileId].push(newLabel);
-
+  
         await updateDoc(profileRef, { labels: updatedLabels });
         setLabels(updatedLabels);
         fetchData(); // Refresh the data after adding the label
@@ -410,12 +417,12 @@ function MyPage() {
       console.error('ラベル追加エラー:', error);
     }
   };
-
+  
   const handleAddLabel = (profileId) => {
     setCurrentProfileId(profileId);
     setIsLabelModalVisible(true);
   };
-
+  
   const sortProfilesByLabel = (label) => {
     const sortedProfiles = Object.keys(labels).filter(profileId => {
       const profileLabels = labels[profileId] || [];
@@ -425,17 +432,17 @@ function MyPage() {
     setSelectedSortLabel(label);
     setIsSortModalVisible(false);
   };
-
+  
   const clearSort = () => {
     fetchExchangedProfiles();
     setSelectedSortLabel('');
     setIsSortModalVisible(false);
   };
-
+  
   const handleBackTextChange = (event) => {
     setBackText(event.target.value);
   };
-
+  
   const handleSaveBackText = async () => {
     try {
       const userDocRef = doc(db, 'users', currentUserId);
@@ -447,12 +454,14 @@ function MyPage() {
       console.error('裏面の情報保存中にエラーが発生しました', error);
     }
   };
-
-  const handleViewBackSide = (profileId) => {
+  
+  const handleViewBackSide = async (profileId) => {
     setRecentlyUpdatedProfiles(recentlyUpdatedProfiles.filter(id => id !== profileId));
-    // Here you can add additional logic to show the back side
+    setViewedProfiles([...viewedProfiles, profileId]);
+    // Mark the profile as viewed in Cookies
+    Cookies.set('viewedProfiles', JSON.stringify([...viewedProfiles, profileId]), { expires: 365 });
   };
-
+  
   return (
     <div className="mypage-container" style={{ background: 'var(--theme-color)' }}>
       <div className="header" style={{ background: 'var(--header-color)' }}>
@@ -466,7 +475,7 @@ function MyPage() {
           </button>
         </div>
       </div>
-
+  
       <div className='qr-buttons'>
         <button onClick={handleQRCodeToggle} style={{ background: 'var(--button-color)' }}>
           <i className="fa-solid fa-qrcode"></i>
@@ -475,7 +484,7 @@ function MyPage() {
           <i className="fa-solid fa-camera"></i>
         </button>
       </div>
-
+  
       {selectedSortLabel && (
         <div className="clear-sort-button-container">
           <button onClick={clearSort} style={{ background: 'var(--button-color)' }}>
@@ -483,15 +492,15 @@ function MyPage() {
           </button>
         </div>
       )}
-
+  
       <Modal isOpen={isQRCodeVisible} onClose={handleQRCodeToggle}>
         <QRCodeGenerator userId={currentUserId} />
       </Modal>
-
+  
       <Modal isOpen={isQRScannerVisible} onClose={handleQRScannerToggle}>
         <QRCodeScanner onScan={handleQRScan} />
       </Modal>
-
+  
       <Modal isOpen={isRequestModalVisible} onClose={handleRequestModalToggle}>
         <div className="request-list">
           {receivedRequests.length > 0 ? (
@@ -510,7 +519,7 @@ function MyPage() {
           )}
         </div>
       </Modal>
-
+  
       <Modal isOpen={isSettingsModalVisible} onClose={handleSettingsModalToggle}>
         <div className="settings-list">
           <h2>Settings</h2>
@@ -534,7 +543,7 @@ function MyPage() {
           </div>
         </div>
       </Modal>
-
+  
       <Modal isOpen={isLabelModalVisible} onClose={() => setIsLabelModalVisible(false)}>
         <div className="label-box">
           <h2>ラベルを追加</h2>
@@ -547,7 +556,7 @@ function MyPage() {
           <button onClick={addLabelToProfile}>追加</button>
         </div>
       </Modal>
-
+  
       <Modal isOpen={isSortModalVisible} onClose={() => setIsSortModalVisible(false)}>
         <div className="sort-box">
           <h2>ラベルでソート</h2>
@@ -564,7 +573,7 @@ function MyPage() {
           </div>
         </div>
       </Modal>
-
+  
       <Modal isOpen={isBackTextModalVisible} onClose={handleBackTextModalToggle}>
         <div className="back-text-box">
           <h2>裏面の情報を編集</h2>
@@ -576,11 +585,11 @@ function MyPage() {
           <button onClick={handleSaveBackText}>保存</button>
         </div>
       </Modal>
-
+  
       <div className="icon-display">
         <span className="icon-placeholder">MeIsi</span>
       </div>
-
+  
       <div className="exchanged-profiles">
         <h2 className='friendsprofile'>フレンドのプロフィール</h2>
         <div className="profile-list-horizontal">
@@ -588,7 +597,7 @@ function MyPage() {
             exchangedProfiles.map((profileId) => (
               <div 
                 key={profileId} 
-                className={`profile-button ${recentlyUpdatedProfiles.includes(profileId) ? 'rainbow-border' : ''}`}
+                className={`profile-button ${recentlyUpdatedProfiles.includes(profileId) && !viewedProfiles.includes(profileId) ? 'rainbow-border' : ''}`}
                 onClick={() => handleViewBackSide(profileId)}
               >
                 <ProfileDetail userId={profileId} />
@@ -605,7 +614,7 @@ function MyPage() {
           )}
         </div>
       </div>
-
+  
       <div className="bottom-nav">
         <button onClick={handleEditProfile}>
           <i className="fas fa-pencil-alt"></i>
@@ -622,6 +631,6 @@ function MyPage() {
       </div>
     </div>
   );
-}
-
+  }
+  
 export default MyPage;

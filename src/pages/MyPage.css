@@ -399,20 +399,21 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   border: 3px solid;
   border-image-slice: 1;
   border-width: 5px;
-  border-image-source: linear-gradient(to left, violet, indigo, blue, green, yellow, orange, red);
-  animation: glow 2s infinite;
+  border-image-source: linear-gradient(to left, #ff9a9e, #fad0c4, #fad0c4, #fbc2eb, #a18cd1, #fbc2eb, #fad0c4, #ff9a9e);
+  border-radius: 15px; /* 角を丸くする */
+  animation: rainbow-glow 2s infinite;
 }
 
 /* Define the glowing effect */
-@keyframes glow {
+@keyframes rainbow-glow {
   0% {
-    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5), 0 0 10px rgba(255, 0, 0, 0.5);
+    box-shadow: 0 0 5px rgba(255, 154, 158, 0.5), 0 0 10px rgba(255, 154, 158, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.8), 0 0 30px rgba(255, 0, 0, 0.8);
+    box-shadow: 0 0 20px rgba(255, 154, 158, 0.8), 0 0 30px rgba(255, 154, 158, 0.8);
   }
   100% {
-    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5), 0 0 10px rgba(255, 0, 0, 0.5);
+    box-shadow: 0 0 5px rgba(255, 154, 158, 0.5), 0 0 10px rgba(255, 154, 158, 0.5);
   }
 }
 
