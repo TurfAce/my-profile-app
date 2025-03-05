@@ -3,12 +3,16 @@ import { doc, getDoc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/fi
 import { db } from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faTwitter, faInstagram, faGithub } from '@fortawesome/free-brands-svg-icons';
+import Modal from './Modal'; // モーダルコンポーネントのインポート
+
 
 function ProfileDetail({ userId }) {
   const [profile, setProfile] = useState(null);
   const [isFlipped, setIsFlipped] = useState(false);
   const [backText, setBackText] = useState('');
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBackTextModalVisible, setIsBackTextModalVisible] = useState(false);
   const currentUserId = localStorage.getItem('userId'); // 現在のユーザーIDを取得
 
   useEffect(() => {
@@ -71,6 +75,18 @@ function ProfileDetail({ userId }) {
     }
   };
 
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleBackTextModalToggle = () => {
+    setIsBackTextModalVisible(!isBackTextModalVisible);
+  };
+
   if (!profile) {
     return <p>プロフィールを読み込み中...</p>;
   }
@@ -79,14 +95,23 @@ function ProfileDetail({ userId }) {
     <div className="profile-detail">
       {isFlipped ? (
         <div className="profile-back">
-          <textarea value={backText} onChange={handleBackTextChange} />
+        <textarea value={backText} onChange={handleBackTextChange} />
           <button onClick={handleFlip}>表面を見る</button>
         </div>
-      ) : (
+        ) : (
         <div className="profile-front">
           <img src={profile.profile_picture_url} alt={`${profile.username}のプロフィール`} className="profile-img" />
           <h3>{profile.username}</h3>
-          <p>{profile.bio}</p>
+          <p>
+            {profile.bio.length > 10 ? (
+              <>
+                {profile.bio.substring(0, 10)}...
+                <button className="fa-solid fa-chevron-right"onClick={handleModalOpen}></button>
+              </>
+            ) : (
+              profile.bio
+            )}
+          </p>
           <div className="social-links">
             {profile.social_links ? (
               profile.social_links.split(',').map((link) => {
@@ -121,9 +146,16 @@ function ProfileDetail({ userId }) {
               <p>ソーシャルリンクがありません</p>
             )}
           </div>
-          <button onClick={handleFlip}>裏面を見る</button>
+          <button className="rotate-button" onClick={handleFlip}>
+            <i className="fa-solid fa-rotate-right"></i>
+          </button>
         </div>
       )}
+      <Modal isOpen={isModalOpen} onRequestClose={handleModalClose} contentLabel="プロフィール詳細">
+        <h2>プロフィール詳細</h2>
+        <p>{profile.bio}</p>
+        <button onClick={handleModalClose}>閉じる</button>
+      </Modal>
     </div>
   );
 }
