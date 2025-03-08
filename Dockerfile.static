@@ -1,0 +1,8 @@
+FROM nginx:latest
+
+# To build app & container image
+# $ npm run build
+# $ docker build -t us-central1-docker.pkg.dev/sample-firebase-ai-app-44ce8/meisi/my-app:v0 \
+#   -f Dockerfile.static build/
+
+COPY . /usr/share/nginx/html/
