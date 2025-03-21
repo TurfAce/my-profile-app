@@ -6,6 +6,7 @@ import { getStorage } from 'firebase/storage';
 import { BehaviorSubject } from 'rxjs';
 import { onAuthStateChanged } from 'firebase/auth';
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyALmu7TdY_Xaq8BXVlmwkhLwBCyL84QLIo",
   authDomain: "sample-firebase-ai-app-44ce8.firebaseapp.com",
@@ -21,7 +22,8 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const storage = getStorage(app);
 
-export { provider, db, auth, collection, doc, setDoc, getDoc, updateDoc, addDoc, arrayUnion, arrayRemove };
+
+export { provider, db, auth, collection, doc, setDoc, getDoc, updateDoc, addDoc, arrayUnion, arrayRemove, storage };
 export const authState$ = new BehaviorSubject(null);
 
 onAuthStateChanged(auth, (user) => {

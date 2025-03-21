@@ -17,6 +17,7 @@ body {
   color: var(--text-color);
   margin: 0;
   padding: 20px;
+  height: 100%;
 }
 
 h1, h2, h3, h4, h5, h6, .profile-list {
@@ -390,7 +391,7 @@ h1, h2, h3, h4, h5, h6, .profile-list {
 }
 
 .social-links a {
-  margin: 0 5px;
+  margin: 100 5px;
   color: var(--profile-color);
   transition: color 0.3s;
 }
@@ -441,14 +442,43 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   }
 }
 
+
+
 /* スマホ向けのスタイル */
 @media (max-width: 600px) {
   body {
     padding: 10px;
   }
+  .rotate-button {
+    position: absolute;
+    top: 440px; /* 調整してボタンを右上に配置 */
+    right: 10px; /* 調整してボタンを右上に配置 */
+    background-color: var(--button-color);
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    color: var(--text-color);
+    font-size: 130%;
+  }
+  .fa-tags {
+    position: absolute;
+    top: 10px; /* 調整してボタンを右上に配置 */
+    right: 10px; /* 調整してボタンを右上に配置 */
+    background-color: var(--button-color);
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    color: var(--text-color);
+    font-size: 100%;
+  }
 
   .mypage-container {
     padding: 10px;
+    height: 700px;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   h1, h2, h3, h4, h5, h6, .profile-list {
@@ -488,7 +518,7 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   .profile-card {
     width: 80%;
     margin-bottom: 10px;
-    height: 400px; /* 高さを追加 */
+    height: 450px; /* 高さを追加 */
     padding: 20px; /* パディングを追加 */
     margin: auto;
   }

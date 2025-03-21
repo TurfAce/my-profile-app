@@ -114,3 +114,9 @@
     background: linear-gradient(135deg, #e0e0e0, #f4f4f4);
   }
 }
+
+.login-redirect-container{
+  gap: 5px;
+  padding: 30px;
+  font-size: 20px;
+}

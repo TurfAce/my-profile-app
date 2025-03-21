@@ -8,6 +8,8 @@ import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '../AuthContext';
 import './ProfilePage.css';
 
+const DEFAULT_PROFILE_PICTURE_URL = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi5ehoS9PMfc6wVcvywKXS84rbn4b9qOKaj764m7hsTlKQjJuScnIJnOiehLDNt_xvxH5KBisA3l3iJe7puie7nq-cRSw0bEgIwE3WcB-yMavN1v07BeJQzsJS8rJNhPDUR7KNBvDHABOE/s800/figure_fire_tsukeru.png'; // デフォルト画像のURLを定義
+
 function UserProfilePage() {
   const { user } = useAuth();
   const { userId } = useParams();
@@ -27,6 +29,8 @@ function UserProfilePage() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [backText, setBackText] = useState('');
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewURL, setPreviewURL] = useState(DEFAULT_PROFILE_PICTURE_URL);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,6 +41,9 @@ function UserProfilePage() {
         setProfile(userData);
         setBackText(userData.additionalInfo || '');
         setLastUpdated(userData.lastUpdated?.toDate() || null);
+        if (userData.profile_picture_url) {
+          setPreviewURL(userData.profile_picture_url);
+        }
       } else {
         console.error('No such document!');
       }
@@ -49,10 +56,29 @@ function UserProfilePage() {
     setProfile({ ...profile, [name]: value });
   };
 
+  const MAX_ICON_SIZE = 200 * 1024; // 2MB
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.size > MAX_ICON_SIZE) {
+      alert('ファイルサイズが大きすぎます。200KB以下のファイルを選択してください。');
+      return;
+    }
+    setSelectedFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewURL(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
   const handleSave = async () => {
     try {
       const userDoc = doc(db, 'users', userId);
-      await updateDoc(userDoc, profile);
+      const updatedProfile = { ...profile, profile_picture_url: previewURL };
+      await updateDoc(userDoc, updatedProfile);
       setEditMode(false);
 
       const isNewuser = localStorage.getItem('isNewuser') === 'true';
@@ -144,9 +170,9 @@ function UserProfilePage() {
     <div className="profile-container">
       <h2>プロフィール</h2>
       <div className="profile-card">
-        {profile.profile_picture_url ? (
+        {previewURL ? (
           <img
-            src={profile.profile_picture_url}
+            src={previewURL}
             alt="Profile"
             className={imageLoaded ? 'fade-in' : 'hidden'}
             onLoad={handleImageLoad}
@@ -159,9 +185,6 @@ function UserProfilePage() {
         <p>
           ソーシャルリンク: {profile.social_links ? renderSocialLinks(profile.social_links) : 'リンクがありません'}
         </p>
-        <button onClick={handleFlip}>
-          {isFlipped ? '表面を見る' : '裏面を見る'}
-        </button>
         {isFlipped ? (
           <div className="profile-back">
             <p>裏面の情報</p>
@@ -195,6 +218,7 @@ function UserProfilePage() {
             value={profile.username || ''}
             onChange={handleInputChange}
             placeholder="ユーザー名を入力"
+            maxLength={13}
           />
           <input
             type="text"
@@ -204,11 +228,10 @@ function UserProfilePage() {
             placeholder="自己紹介を入力"
           />
           <input
-            type="text"
-            name="profile_picture_url"
-            value={profile.profile_picture_url || ''}
-            onChange={handleInputChange}
-            placeholder="プロフィール画像のURLを入力"
+            type="file"
+            name="profile_picture_file"
+            onChange={handleFileChange}
+            placeholder="unttitititit"
           />
           <input
             type="text"

@@ -26,7 +26,7 @@ function App() {
       <div>
         <Routes>
           {/* ログインしていない場合、ログインページにリダイレクト */}
-          <Route path="/" element={userId ? <Navigate to={`/profile/${userId}`} /> : <Navigate to="/login" />} />
+          <Route path="/" element={<Navigate to="/register" />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           {/* <Route path="/fireauth" element={<FireAuth />} /> */}

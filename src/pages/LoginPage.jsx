@@ -2,7 +2,7 @@
 import { onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../firebase'; 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Loginpage.css';
 
 function LoginPage() {
@@ -55,6 +55,10 @@ function LoginPage() {
           Sign in with Google
         </button>
       </div>
+      <div className="register-redirect-container">
+        <Link to="/register" className="login-redirect-link">アカウントが無い方はこちら</Link>
+      </div>
+
     </div>
   );
 }

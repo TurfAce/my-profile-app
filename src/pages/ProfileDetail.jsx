@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFacebook, faTwitter, faInstagram, faGithub } from '@fortawesome/free-brands-svg-icons';
 import Modal from './Modal'; // モーダルコンポーネントのインポート
-
+import './ProfileDetail.css';
 
 function ProfileDetail({ userId }) {
   const [profile, setProfile] = useState(null);
@@ -13,6 +13,7 @@ function ProfileDetail({ userId }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBackTextModalVisible, setIsBackTextModalVisible] = useState(false);
+  const [backImage, setBackImage] = useState(null);
   const currentUserId = localStorage.getItem('userId'); // 現在のユーザーIDを取得
 
   useEffect(() => {
@@ -23,6 +24,7 @@ function ProfileDetail({ userId }) {
         setProfile(userData);
         setBackText(userData.additionalInfo || '');
         setLastUpdated(userData.lastUpdated?.toDate() || null);
+        setBackImage(userData.backImage || null); // 追加
       } else {
         console.error('プロフィールが見つかりません');
       }
@@ -95,10 +97,12 @@ function ProfileDetail({ userId }) {
     <div className="profile-detail">
       {isFlipped ? (
         <div className="profile-back">
-        <textarea value={backText} onChange={handleBackTextChange} />
-          <button onClick={handleFlip}>表面を見る</button>
+          <img src={profile.backImage} alt="裏面の画像" className="back-image" />
+          <button className="rotate-button" onClick={handleFlip}>
+            <i className="fa-solid fa-rotate-right"></i>
+          </button>
         </div>
-        ) : (
+      ) : (
         <div className="profile-front">
           <img src={profile.profile_picture_url} alt={`${profile.username}のプロフィール`} className="profile-img" />
           <h3>{profile.username}</h3>
@@ -106,7 +110,7 @@ function ProfileDetail({ userId }) {
             {profile.bio.length > 10 ? (
               <>
                 {profile.bio.substring(0, 10)}...
-                <button className="fa-solid fa-chevron-right"onClick={handleModalOpen}></button>
+                <button className="fa-solid fa-chevron-right" onClick={handleModalOpen}></button>
               </>
             ) : (
               profile.bio

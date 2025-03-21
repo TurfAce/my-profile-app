@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import './registerpage.css';
 import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth, db } from '../firebase'; // Firebaseのインポートを適切なパスに変更
-import { doc, setDoc, runTransaction, getDoc } from 'firebase/firestore'; // 必要な関数をインポート
-import { useNavigate } from 'react-router-dom';
+import { doc, setDoc, runTransaction } from 'firebase/firestore'; // 必要な関数をインポート
+import { useNavigate, Link } from 'react-router-dom';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -68,6 +68,10 @@ const RegisterPage = () => {
     }
   };
 
+  const handleNavigateToLogin = () => {
+    navigate('/login');
+  };
+
   return (
     <div className="register-container">
       <form className="register-form" onSubmit={handleSubmit}>
@@ -101,6 +105,9 @@ const RegisterPage = () => {
       <div className="google-signup-container">
         <p>Googleアカウントでアカウントを作る方はこちら:</p>
         <button className="google-signup-button" onClick={handleGoogleSignUp}>Sign up with Google</button>
+      </div>
+      <div className="login-redirect-container">
+        <Link to="/login" className="login-redirect-link">アカウントをお持ちの方はこちら</Link>
       </div>
     </div>
   );

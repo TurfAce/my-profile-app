@@ -37,6 +37,10 @@ function MyPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  const [backImage, setBackImage] = useState(null);
+  const [nextUpdate, setNextUpdate] = useState(null);
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+
   useEffect(() => {
     fetchUserTheme(); // ユーザーのテーマを取得
   }, [currentUserId]);
@@ -144,11 +148,11 @@ function MyPage() {
 
   const handleEditProfile = () => {
     navigate(`/login/${currentUserId}`);
-  }
+  };
 
   const jumpToAnProfile = (userId) => {
     navigate(`/login/${userId}`);
-  }
+  };
 
   const sendRequest = async (targetUserId) => {
     const currentUserRef = doc(db, 'users', currentUserId);
@@ -189,12 +193,12 @@ function MyPage() {
   const handleQRScannerToggle = () => {
     setIsQRScannerVisible(!isQRScannerVisible);
     setIsQRCodeVisible(false);
-  }
+  };
 
-  const handleQRCodeToggle = () => { 
+  const handleQRCodeToggle = () => {
     setIsQRCodeVisible(!isQRCodeVisible);
     setIsQRScannerVisible(false);
-  }
+  };
 
   const handleRequestModalToggle = async () => {
     if (!isRequestModalVisible) {
@@ -310,6 +314,24 @@ function MyPage() {
     );
   };
 
+  const MAX_FILE_SIZE = 2 * 1024 * 1024;
+
+  const handleBackImageChange = (e) => {
+    const file = e.target.files[0];
+    if(file && file.size > MAX_FILE_SIZE) {
+      alert('too big');
+      return;
+    }
+    if(file){
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBackImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+
   const QRCodeScanner = ({ onScan }) => {
     const [error, setError] = useState('');
 
@@ -346,6 +368,9 @@ function MyPage() {
     const videoConstraints = {
       facingMode: 'environment', // Use the back camera
     };
+
+
+
 
     return (
       <div className="qr-scanner-container">
@@ -393,60 +418,65 @@ function MyPage() {
       alert('リクエスト承認に失敗しました。');
     }
   };
-  
+
   const addLabelToProfile = async () => {
     try {
-      const profileRef = doc(db, 'users', currentUserId);
-      const userDoc = await getDoc(profileRef);
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-        const updatedLabels = { ...data.labels };
-  
-        if (!updatedLabels[currentProfileId]) {
-          updatedLabels[currentProfileId] = [];
+        const profileRef = doc(db, 'users', currentUserId);
+        const userDoc = await getDoc(profileRef);
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            const updatedLabels = { ...data.labels };
+
+            if (!updatedLabels[currentProfileId]) {
+                updatedLabels[currentProfileId] = [];
+            }
+            updatedLabels[currentProfileId].push(newLabel);
+
+            await updateDoc(profileRef, { labels: updatedLabels });
+            setLabels(updatedLabels);
+            fetchData(); // Refresh the data after adding the label
+            setIsLabelModalVisible(false);
+            setNewLabel('');
         }
-        updatedLabels[currentProfileId].push(newLabel);
-  
-        await updateDoc(profileRef, { labels: updatedLabels });
-        setLabels(updatedLabels);
-        fetchData(); // Refresh the data after adding the label
-        setIsLabelModalVisible(false);
-        setNewLabel('');
-      }
     } catch (error) {
-      console.error('ラベル追加エラー:', error);
+        console.error('ラベル追加エラー:', error);
     }
   };
-  
+
   const handleAddLabel = (profileId) => {
-    setCurrentProfileId(profileId);
-    setIsLabelModalVisible(true);
+      setCurrentProfileId(profileId);
+      setIsLabelModalVisible(true);
   };
-  
+
   const sortProfilesByLabel = (label) => {
-    const sortedProfiles = Object.keys(labels).filter(profileId => {
-      const profileLabels = labels[profileId] || [];
-      return profileLabels.includes(label);
-    });
-    setExchangedProfiles(sortedProfiles);
-    setSelectedSortLabel(label);
-    setIsSortModalVisible(false);
+      const sortedProfiles = Object.keys(labels).filter(profileId => {
+          const profileLabels = labels[profileId] || [];
+          return profileLabels.includes(label);
+      });
+      setExchangedProfiles(sortedProfiles);
+      setSelectedSortLabel(label);
+      setIsSortModalVisible(false);
   };
-  
+
   const clearSort = () => {
-    fetchExchangedProfiles();
-    setSelectedSortLabel('');
-    setIsSortModalVisible(false);
+      fetchExchangedProfiles();
+      setSelectedSortLabel('');
+      setIsSortModalVisible(false);
   };
-  
+
   const handleBackTextChange = (event) => {
-    setBackText(event.target.value);
+      setBackText(event.target.value);
   };
-  
+
   const handleSaveBackText = async () => {
+    // if (lastUpdated && (new Date() - lastUpdated) < 24 * 60 * 60 * 1000) {
+    //   alert('裏面の情報は1日に一度のみ変更できます。');
+    //   return;
+    // }
+  
     try {
       const userDocRef = doc(db, 'users', currentUserId);
-      await updateDoc(userDocRef, { additionalInfo: backText, lastUpdated: serverTimestamp() });
+      await updateDoc(userDocRef, { backImage: backImage, lastUpdated: serverTimestamp() });
       setLastUpdated(new Date());
       alert('裏面の情報を保存しました');
       setIsBackTextModalVisible(false);
@@ -455,182 +485,187 @@ function MyPage() {
     }
   };
   
+
+
   const handleViewBackSide = async (profileId) => {
+    const updatedViewedProfiles = [...viewedProfiles, profileId];
     setRecentlyUpdatedProfiles(recentlyUpdatedProfiles.filter(id => id !== profileId));
-    setViewedProfiles([...viewedProfiles, profileId]);
+    setViewedProfiles(updatedViewedProfiles);
     // Mark the profile as viewed in Cookies
-    Cookies.set('viewedProfiles', JSON.stringify([...viewedProfiles, profileId]), { expires: 365 });
+    Cookies.set('viewedProfiles', JSON.stringify(updatedViewedProfiles), { expires: 365 });
   };
-  
+
   return (
-    <div className="mypage-container" style={{ background: 'var(--theme-color)' }}>
-      <div className="header" style={{ background: 'var(--header-color)' }}>
-        <div className="notification-icon" onClick={handleRequestModalToggle}>
-          <i className="fas fa-bell"></i>
-          {countUnreadRequests() > 0 && <span className="notification-count">{countUnreadRequests()}</span>}
-        </div>
-        <div className="search-button-container">
-          <button className="search-button" style={{ background: 'var(--button-color)' }} onClick={() => setIsSortModalVisible(true)}>
-            <i className='fa-solid fa-list'></i>
-          </button>
-        </div>
-      </div>
-  
-      <div className='qr-buttons'>
-        <button onClick={handleQRCodeToggle} style={{ background: 'var(--button-color)' }}>
-          <i className="fa-solid fa-qrcode"></i>
-        </button>
-        <button onClick={handleQRScannerToggle} style={{ background: 'var(--button-color)' }}>
-          <i className="fa-solid fa-camera"></i>
-        </button>
-      </div>
-  
-      {selectedSortLabel && (
-        <div className="clear-sort-button-container">
-          <button onClick={clearSort} style={{ background: 'var(--button-color)' }}>
-            ソート解除
-          </button>
-        </div>
-      )}
-  
-      <Modal isOpen={isQRCodeVisible} onClose={handleQRCodeToggle}>
-        <QRCodeGenerator userId={currentUserId} />
-      </Modal>
-  
-      <Modal isOpen={isQRScannerVisible} onClose={handleQRScannerToggle}>
-        <QRCodeScanner onScan={handleQRScan} />
-      </Modal>
-  
-      <Modal isOpen={isRequestModalVisible} onClose={handleRequestModalToggle}>
-        <div className="request-list">
-          {receivedRequests.length > 0 ? (
-            receivedRequests.map((req) => (
-              <div key={req.fromUserId} className="request-card">
-                <p>{req.fromUserId} からのリクエスト</p>
-                {req.status === 'pending' ? (
-                  <button onClick={() => approveRequest(req.fromUserId)}>承認する</button>
-                ) : (
-                  <p>承認済み</p>
-                )}
+      <div className="mypage-container" style={{ background: 'var(--theme-color)' }}>
+          <div className="header" style={{ background: 'var(--header-color)' }}>
+              <div className="notification-icon" onClick={handleRequestModalToggle}>
+                  <i className="fas fa-bell"></i>
+                  {countUnreadRequests() > 0 && <span className="notification-count">{countUnreadRequests()}</span>}
               </div>
-            ))
-          ) : (
-            <p>承認待ちのリクエストはありません。</p>
-          )}
-        </div>
-      </Modal>
-  
-      <Modal isOpen={isSettingsModalVisible} onClose={handleSettingsModalToggle}>
-        <div className="settings-list">
-          <h2>Settings</h2>
-          <div className="theme-selector">
-            <label>
-              <input type="radio" value="white" checked={theme === 'white'} onChange={handleThemeChange} />
-              White
-            </label>
-            <label>
-              <input type="radio" value="black" checked={theme === 'black'} onChange={handleThemeChange} />
-              Black
-            </label>
-            <label>
-              <input type="radio" value="pink" checked={theme === 'pink'} onChange={handleThemeChange} />
-              Pink
-            </label>
-            <label>
-              <input type="radio" value="blue" checked={theme === 'blue'} onChange={handleThemeChange} />
-              Blue
-            </label>
+              <div className="search-button-container">
+                  <button className="search-button" style={{ background: 'var(--button-color)' }} onClick={() => setIsSortModalVisible(true)}>
+                      <i className='fa-solid fa-list'></i>
+                  </button>
+              </div>
           </div>
-        </div>
-      </Modal>
-  
-      <Modal isOpen={isLabelModalVisible} onClose={() => setIsLabelModalVisible(false)}>
-        <div className="label-box">
-          <h2>ラベルを追加</h2>
-          <input
-            type="text"
-            placeholder="ラベルを入力"
-            value={newLabel}
-            onChange={(e) => setNewLabel(e.target.value)}
-          />
-          <button onClick={addLabelToProfile}>追加</button>
-        </div>
-      </Modal>
-  
-      <Modal isOpen={isSortModalVisible} onClose={() => setIsSortModalVisible(false)}>
-        <div className="sort-box">
-          <h2>ラベルでソート</h2>
-          <div>
-            {Array.from(new Set(Object.values(labels).flat())).map((label, index) => (
-              <button
-                key={index}
-                className={`label-item ${selectedSortLabel === label ? 'selected' : ''}`}
-                onClick={() => sortProfilesByLabel(label)}
-              >
-                {label}
+
+          <div className='qr-buttons'>
+              <button onClick={handleQRCodeToggle} style={{ background: 'var(--button-color)' }}>
+                  <i className="fa-solid fa-qrcode"></i>
               </button>
-            ))}
+              <button onClick={handleQRScannerToggle} style={{ background: 'var(--button-color)' }}>
+                  <i className="fa-solid fa-camera"></i>
+              </button>
           </div>
-        </div>
-      </Modal>
-  
-      <Modal isOpen={isBackTextModalVisible} onClose={handleBackTextModalToggle}>
-        <div className="back-text-box">
-          <h2>裏面の情報を編集</h2>
-          <textarea
-            placeholder="裏面の情報を入力"
-            value={backText}
-            onChange={handleBackTextChange}
-          />
-          <button onClick={handleSaveBackText}>保存</button>
-        </div>
-      </Modal>
-  
-      <div className="icon-display">
-        <span className="icon-placeholder">MeIsi</span>
-      </div>
-  
-      <div className="exchanged-profiles">
-        <h2 className='friendsprofile'>フレンドのプロフィール</h2>
-        <div className="profile-list-horizontal">
-          {exchangedProfiles.length > 0 ? (
-            exchangedProfiles.map((profileId) => (
-              <div 
-                key={profileId} 
-                className={`profile-button ${recentlyUpdatedProfiles.includes(profileId) && !viewedProfiles.includes(profileId) ? 'rainbow-border' : ''}`}
-                onClick={() => handleViewBackSide(profileId)}
-              >
-                <ProfileDetail userId={profileId} />
-                <button className="fa-solid fa-tags" onClick={() => handleAddLabel(profileId)}></button>
-                <div className="label-list">
-                  {labels[profileId] && labels[profileId].map((label, index) => (
-                    <span key={index} className="profile-label">{label}</span>
-                  ))}
-                </div>
+
+          {selectedSortLabel && (
+              <div className="clear-sort-button-container">
+                  <button onClick={clearSort} style={{ background: 'var(--button-color)' }}>
+                      ソート解除
+                  </button>
               </div>
-            ))
-          ) : (
-            <p>交換したプロフィールがありません。</p>
           )}
-        </div>
+
+          <Modal isOpen={isQRCodeVisible} onClose={handleQRCodeToggle}>
+              <QRCodeGenerator userId={currentUserId} />
+          </Modal>
+
+          <Modal isOpen={isQRScannerVisible} onClose={handleQRScannerToggle}>
+              <QRCodeScanner onScan={handleQRScan} />
+          </Modal>
+
+          <Modal isOpen={isRequestModalVisible} onClose={handleRequestModalToggle}>
+              <div className="request-list">
+                  {receivedRequests.length > 0 ? (
+                      receivedRequests.map((req) => (
+                          <div key={req.fromUserId} className="request-card">
+                              <p>{req.fromUserId} からのリクエスト</p>
+                              {req.status === 'pending' ? (
+                                  <button onClick={() => approveRequest(req.fromUserId)}>承認する</button>
+                              ) : (
+                                  <p>承認済み</p>
+                              )}
+                          </div>
+                      ))
+                  ) : (
+                      <p>承認待ちのリクエストはありません。</p>
+                  )}
+              </div>
+          </Modal>
+
+          <Modal isOpen={isSettingsModalVisible} onClose={handleSettingsModalToggle}>
+              <div className="settings-list">
+                  <h2>Settings</h2>
+                  <div className="theme-selector">
+                      <label>
+                          <input type="radio" value="white" checked={theme === 'white'} onChange={handleThemeChange} />
+                          White
+                      </label>
+                      <label>
+                          <input type="radio" value="black" checked={theme === 'black'} onChange={handleThemeChange} />
+                          Black
+                      </label>
+                      <label>
+                          <input type="radio" value="pink" checked={theme === 'pink'} onChange={handleThemeChange} />
+                          Pink
+                      </label>
+                      <label>
+                          <input type="radio" value="blue" checked={theme === 'blue'} onChange={handleThemeChange} />
+                          Blue
+                      </label>
+                  </div>
+              </div>
+          </Modal>
+
+          <Modal isOpen={isLabelModalVisible} onClose={() => setIsLabelModalVisible(false)}>
+              <div className="label-box">
+                  <h2>ラベルを追加</h2>
+                  <input
+                      type="text"
+                      placeholder="ラベルを入力"
+                      value={newLabel}
+                      onChange={(e) => setNewLabel(e.target.value)}
+                  />
+                  <button onClick={addLabelToProfile}>追加</button>
+              </div>
+          </Modal>
+
+          <Modal isOpen={isSortModalVisible} onClose={() => setIsSortModalVisible(false)}>
+              <div className="sort-box">
+                  <h2>ラベルでソート</h2>
+                  <div>
+                      {Array.from(new Set(Object.values(labels).flat())).map((label, index) => (
+                          <button
+                              key={index}
+                              className={`label-item ${selectedSortLabel === label ? 'selected' : ''}`}
+                              onClick={() => sortProfilesByLabel(label)}
+                          >
+                              {label}
+                          </button>
+                      ))}
+                  </div>
+              </div>
+          </Modal>
+
+          <Modal isOpen={isBackTextModalVisible} onClose={() => setIsBackTextModalVisible(false)}>
+            <div className="back-text-box">
+              <h2>裏面の画像をアップロード</h2>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleBackImageChange}
+              />
+              <button onClick={handleSaveBackText}>保存</button>
+            </div>
+          </Modal>
+          
+          <div className="icon-display">
+              <span className="icon-placeholder">MeIsi</span>
+          </div>
+
+          <div className="exchanged-profiles">
+              {exchangedProfiles.length > 0 && (
+                  <h2 className='friendsprofile'>フレンドのプロフィール</h2>
+              )}
+              <div className="profile-list-horizontal">
+                  {exchangedProfiles.length > 0 ? (
+                      exchangedProfiles.map((profileId) => (
+                          <div 
+                              key={profileId} 
+                              className={`profile-button ${recentlyUpdatedProfiles.includes(profileId) && !viewedProfiles.includes(profileId) ? 'rainbow-border' : ''}`}
+                              onClick={() => handleViewBackSide(profileId)}
+                          >
+                              <ProfileDetail userId={profileId} />
+                              <button className="fa-solid fa-tags" onClick={() => handleAddLabel(profileId)}></button>
+                              <div className="label-list">
+                                  {labels[profileId] && labels[profileId].map((label, index) => (
+                                      <span key={index} className="profile-label">{label}</span>
+                                  ))}
+                              </div>
+                          </div>
+                      ))
+                  ) : (
+                      <p>まだ交換したプロフィールがありません。<br />友達を見つけてプロフィールを交換してみましょう！</p>
+                  )}
+              </div>
+          </div>
+
+          <div className="bottom-nav">
+              <button onClick={handleEditProfile}>
+                  <i className="fas fa-pencil-alt"></i>
+                  <span>Edit</span>
+              </button>
+              <button onClick={handleSettingsModalToggle}>
+                  <i className="fa-solid fa-cog"></i>
+                  <span>Settings</span>
+              </button>
+              <button onClick={handleBackTextModalToggle}>
+                  <i className="fa-solid fa-film"></i>
+                  <span>1/1 story</span>
+              </button>
+          </div>
       </div>
-  
-      <div className="bottom-nav">
-        <button onClick={handleEditProfile}>
-          <i className="fas fa-pencil-alt"></i>
-          <span>Edit</span>
-        </button>
-        <button onClick={handleSettingsModalToggle}>
-          <i className="fa-solid fa-cog"></i>
-          <span>Settings</span>
-        </button>
-        <button onClick={handleBackTextModalToggle}>
-          <i className="fa-solid fa-file-alt"></i>
-          <span>裏面編集</span>
-        </button>
-      </div>
-    </div>
   );
-  }
-  
+}
+    
 export default MyPage;

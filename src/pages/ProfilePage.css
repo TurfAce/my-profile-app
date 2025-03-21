@@ -243,11 +243,38 @@ img.hidden {
   button.primary {
     display: inline-block;
     font-size: 13px;
+    margin: 10px 0; /* ボタン間の間隔を広げる */
   }
   button.primary1 {
     display: inline-block;
     font-size: 13px;
+    margin: 10px 0; /* ボタン間の間隔を広げる */
   }
-
-  
+  .profile-container {
+    height: 720px; /* 高さを自動にする */
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  .profile-card {
+    gap: 30px; /* カード内の要素間の間隔を広げる */
+  }
+  .profile-card img {
+    width: 100%; /* 画像の幅を小さくする */
+    height: 50%; /* 画像の高さを小さくする */
+    border-radius: 0%; /* 画像を丸くする */
+    object-fit: cover; /* アスペクト比を維持しながら画像をコンテナに収める */
+  }
+  h3 {
+    margin: 10px 0; /* 見出しの上下の間隔を広げる */
+  }
+  p {
+    margin: 10px 0; /* 段落の上下の間隔を広げる */
+  }
+  .social-links {
+    margin-bottom: 20px; /* ソーシャルリンク下の間隔を広げる */
+    gap: 10px;
+  }
 }
