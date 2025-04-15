@@ -9,6 +9,8 @@ import { doc, getDoc, updateDoc, arrayUnion, collection, getDocs, serverTimestam
 import QrScanner from 'react-qr-scanner';
 import Modal from './Modal'; // モーダルコンポーネントをインポート
 import Cookies from 'js-cookie';
+import Trophies from './Trophies'; 
+import TutorialPage from './TutorialPage';
 
 function MyPage() {
   const [exchangedProfiles, setExchangedProfiles] = useState([]);
@@ -34,12 +36,17 @@ function MyPage() {
   const [viewedProfiles, setViewedProfiles] = useState([]); // 表示されたプロファイル
   const currentUserId = localStorage.getItem('userId');
   const [theme, setTheme] = useState(null); // 初期値を null に設定
+  const [backImageChangeCount, setBackImageChangeCount] = useState(0);
+  const [isNFCModalVisible, setIsNFCModalVisible] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [backImage, setBackImage] = useState(null);
   const [nextUpdate, setNextUpdate] = useState(null);
   const ONE_DAY = 24 * 60 * 60 * 1000;
+
+  const [isTrophiesModalVisible, setIsTrophiesModalVisible] = useState(false); 
+  const [isTutorialModalVisible, setIsTutorialModalVisible] = useState(false);
 
   useEffect(() => {
     fetchUserTheme(); // ユーザーのテーマを取得
@@ -65,6 +72,12 @@ function MyPage() {
     await fetchExchangedProfiles();
     await fetchAllUsers();
     await fetchRequests();
+
+    const userDoc = await getDoc(doc(db, 'users', currentUserId));
+    if(userDoc.exists()){
+      const userData = userDoc.data();
+      setBackImageChangeCount(userData.backImageChangeCount || 0);
+    }
   };
 
   const fetchUserTheme = async () => {
@@ -150,6 +163,7 @@ function MyPage() {
     navigate(`/login/${currentUserId}`);
   };
 
+
   const jumpToAnProfile = (userId) => {
     navigate(`/login/${userId}`);
   };
@@ -179,6 +193,53 @@ function MyPage() {
       alert('リクエスト送信に失敗しました。もう一度お試しください。');
     }
   };
+
+  const handleNFCWrite = async () => {
+    if ('NDEFReader' in window) {
+      try {
+        const ndef = new window.NDEFReader();
+        await ndef.write(`http://localhost:3000/mypage/${currentUserId}`);
+        alert('NFCにデータを書き込みました！');
+      } catch (error) {
+        console.error('NFC書き込みエラー:', error);
+        alert('NFC書き込みに失敗しました。もう一度お試しください。');
+      }
+    } else {
+      alert('このデバイスやブラウザはNFC機能をサポートしていません。');
+    }
+  };
+  
+  const handleNFCRead = async () => {
+    if ('NDEFReader' in window) {
+      try {
+        const ndef = new window.NDEFReader();
+        await ndef.scan();
+  
+        ndef.onreading = (event) => {
+          const decoder = new TextDecoder();
+          for (const record of event.message.records) {
+            const data = decoder.decode(record.data);
+            alert('Scanned NFC Data:', data);
+  
+            if (data.startsWith('http://localhost:3000/mypage/')) {
+              const userId = data.replace('http://localhost:3000/mypage/', '');
+              alert(`NFCで受信したデータ: ${userId}`);
+              sendRequest(userId);
+            }
+          }
+        };
+      } catch (error) {
+        console.error('NFC読み取りエラー:', error);
+        alert('NFC読み取りに失敗しました。もう一度お試しください。');
+      }
+    } else {
+      alert('このデバイスやブラウザはNFC機能をサポートしていません。');
+    }
+  };
+
+  const handleNFCModalToggle = () => {
+    setIsNFCModalVisible(!isNFCModalVisible);
+  }
 
   const handleQRScan = (scannedData) => {
     if (scannedData) {
@@ -473,11 +534,15 @@ function MyPage() {
     //   alert('裏面の情報は1日に一度のみ変更できます。');
     //   return;
     // }
-  
     try {
       const userDocRef = doc(db, 'users', currentUserId);
-      await updateDoc(userDocRef, { backImage: backImage, lastUpdated: serverTimestamp() });
+      await updateDoc(userDocRef, { 
+        backImage: backImage, 
+        lastUpdated: serverTimestamp(),
+        backImageChangeCount: backImageChangeCount + 1 // 変更回数をインクリメント
+      });
       setLastUpdated(new Date());
+      setBackImageChangeCount(backImageChangeCount + 1); // ローカルステートも更新
       alert('裏面の情報を保存しました');
       setIsBackTextModalVisible(false);
     } catch (error) {
@@ -495,6 +560,15 @@ function MyPage() {
     Cookies.set('viewedProfiles', JSON.stringify(updatedViewedProfiles), { expires: 365 });
   };
 
+
+  const handleTrophiesModalToggle = () => {
+    setIsTrophiesModalVisible(!isTrophiesModalVisible);
+  };
+
+  const handleTutorialModalToggle = () => {
+    setIsTutorialModalVisible(!isTutorialModalVisible);
+  }
+
   return (
       <div className="mypage-container" style={{ background: 'var(--theme-color)' }}>
           <div className="header" style={{ background: 'var(--header-color)' }}>
@@ -508,6 +582,8 @@ function MyPage() {
                   </button>
               </div>
           </div>
+
+          
 
           <div className='qr-buttons'>
               <button onClick={handleQRCodeToggle} style={{ background: 'var(--button-color)' }}>
@@ -649,6 +725,23 @@ function MyPage() {
                   )}
               </div>
           </div>
+          {/* <button className="tutorial-button" onClick={handleTutorialModalToggle}>Help</button>
+          <Modal isOpen={isTutorialModalVisible} onClose={handleTutorialModalToggle}>
+              <TutorialPage /> 
+          </Modal> */}
+          <div className="nfc-buttons">
+            <button onClick={handleNFCWrite} className="nfc-button">
+              NFCで送信
+            </button>
+            <button onClick={handleNFCRead} className="nfc-button">
+              NFCで受信
+            </button>
+          </div>
+          <Modal isOpen={isNFCModalVisible} onClose={handleNFCModalToggle}>
+            <h2>NFC交換機能</h2>
+            <p>スマートフォンを近づけて名刺情報を交換してください。</p>
+          </Modal>
+
 
           <div className="bottom-nav">
               <button onClick={handleEditProfile}>
@@ -656,13 +749,27 @@ function MyPage() {
                   <span>Edit</span>
               </button>
               <button onClick={handleSettingsModalToggle}>
-                  <i className="fa-solid fa-cog"></i>
-                  <span>Settings</span>
+                  <i className="fa-solid fa-paint-roller"></i>
+                  <span>Color</span>
               </button>
               <button onClick={handleBackTextModalToggle}>
                   <i className="fa-solid fa-film"></i>
                   <span>1/1 story</span>
               </button>
+              <button onClick={handleTrophiesModalToggle}>
+                <i className='fa-solid fa-trophy'></i>
+                <span>実績</span>
+              </button>
+              <Modal isOpen={isTrophiesModalVisible} onClose={handleTrophiesModalToggle}>
+                <Trophies exchangeCount={exchangedProfiles.length} backImageChangeCount={backImageChangeCount} />
+              </Modal>
+              <button onClick={handleTutorialModalToggle}>
+                <i className="fa-solid fa-question" ></i>
+                <spna>Help</spna>
+              </button> 
+              <Modal isOpen={isTutorialModalVisible} onClose={handleTutorialModalToggle}>
+                  <TutorialPage /> {/* Rendering TutorialPage Component */}
+              </Modal>
           </div>
       </div>
   );
