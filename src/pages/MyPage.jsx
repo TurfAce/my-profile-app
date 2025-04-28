@@ -40,6 +40,10 @@ function MyPage() {
   const [isNFCModalVisible, setIsNFCModalVisible] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [nfcReadData, sentNfcReadData] = useState([]);
+  const [nfcError, setNfcError] = useState('');
+  const [nfcProgress, setNfcProgress] = useState([]);
+  const [writtenData, setWrittenData] = useState('');
 
   const [backImage, setBackImage] = useState(null);
   const [nextUpdate, setNextUpdate] = useState(null);
@@ -48,6 +52,7 @@ function MyPage() {
   const [isTrophiesModalVisible, setIsTrophiesModalVisible] = useState(false); 
   const [isTutorialModalVisible, setIsTutorialModalVisible] = useState(false);
 
+  
   useEffect(() => {
     fetchUserTheme(); // ユーザーのテーマを取得
   }, [currentUserId]);
@@ -194,48 +199,162 @@ function MyPage() {
     }
   };
 
-  const handleNFCWrite = async () => {
+  const isNFCSupported = () => {
     if ('NDEFReader' in window) {
-      try {
-        const ndef = new window.NDEFReader();
-        await ndef.write(`http://localhost:3000/mypage/${currentUserId}`);
-        alert('NFCにデータを書き込みました！');
-      } catch (error) {
-        console.error('NFC書き込みエラー:', error);
-        alert('NFC書き込みに失敗しました。もう一度お試しください。');
-      }
+      return true;
     } else {
-      alert('このデバイスやブラウザはNFC機能をサポートしていません。');
+      alert('お使いのデバイスやブラウザはNFCをサポートしていません。');
+      return false;
     }
   };
+
+  const sendNFCRequest = async (nfcData) => {
+    const currentUserRef = doc(db, 'users', currentUserId);
   
+    try {
+      if (!nfcData) {
+        alert('NFCデータが空です。もう一度試してください。');
+        return;
+      }
+  
+      // 読み取ったNFCデータをtargetUserIdとみなす
+      const targetUserId = nfcData.trim();
+      const targetUserRef = doc(db, 'users', targetUserId);
+  
+      // Firestoreの更新処理
+      await updateDoc(currentUserRef, {
+        sentRequests: arrayUnion({
+          targetUserId: targetUserId,
+          status: 'pending',
+        }),
+      });
+  
+      await updateDoc(targetUserRef, {
+        receivedRequests: arrayUnion({
+          fromUserId: currentUserId,
+          status: 'pending',
+        }),
+      });
+  
+      alert(`リクエストを送信しました: ${targetUserId}`);
+    } catch (error) {
+      console.error('NFCリクエスト送信エラー:', error);
+      alert('NFCリクエスト送信に失敗しました。もう一度お試しください。');
+    }
+  };
+
+  // const handleNFCWrite = async () => {
+  //   if ('NDEFReader' in window) {
+  //     try {
+  //       console.log('NFCリーダーを初期化中...');
+  //       const ndef = new NDEFReader();
+  
+  //       console.log('NFCタグへのデータ書き込みを開始します...');
+  //       await ndef.write({
+  //         records: [{ recordType: "text", data: currentUserId }],
+  //       });
+  
+  //       console.log('NFCタグにデータを書き込みました！');
+  //       alert('NFCにデータを書き込みました！');
+  //     } catch (error) {
+  //       console.error('NFC書き込みエラー:', error);
+  //       alert(`NFC書き込みに失敗しました。詳細: ${error.message}`);
+  //     }
+  //   } else {
+  //     alert('このデバイスやブラウザはNFC機能をサポートしていません。');
+  //   }
+  // };
+  const handleNFCWriteFromFirestore = async () => {
+    if (!isNFCSupported()) {
+      return;
+    }
+  
+    try {
+      // Firestoreから現在のユーザーのデータを取得
+      const userDoc = await getDoc(doc(db, 'users', currentUserId)); // `currentUserId`はログイン中のユーザーID
+      if (!userDoc.exists()) {
+        alert('Firestoreにユーザー情報が見つかりません。');
+        return;
+      }
+  
+      // Firestoreから取得した`uid`
+      const uid = userDoc.data()?.uid;
+      if (!uid) {
+        alert('Firestoreでuidが見つかりません。');
+        return;
+      }
+  
+      const ndef = new NDEFReader();
+  
+      // NFCタグにuidを書き込む
+      await ndef.write({
+        records: [{ recordType: "text", data: uid }]
+      });
+  
+      // 書き込んだデータを保存 (UIで表示)
+      setWrittenData(uid);
+      alert(`NFCタグにユーザーID(${uid})を書き込みました！`);
+    } catch (error) {
+      console.error('NFC書き込みエラー:', error);
+      alert(`NFC書き込みに失敗しました: ${error.message}`);
+    }
+  };
+      
   const handleNFCRead = async () => {
+    if (!isNFCSupported()) {
+      return;
+    }
+  
+    try {
+      const ndef = new NDEFReader();
+      await ndef.scan();
+      ndef.onreading = (event) => {
+        const decoder = new TextDecoder();
+        for (const record of event.message.records) {
+          if (record.recordType === "text") {
+            const userId = decoder.decode(record.data).trim();
+            sendRequest(userId); // 読み取ったIDでリクエスト送信
+            alert(`NFCデータを読み取りました: ${userId}`);
+          }
+        }
+      };
+    } catch (error) {
+      console.error('NFC読み取りエラー:', error);
+      alert(`NFC読み取りに失敗しました: ${error.message}`);
+    }
+  };
+
+  const handleNFCYomikomi = async () => {
     if ('NDEFReader' in window) {
+      setNfcProgress(['NFCリーダーの初期化を開始しました']);
       try {
-        const ndef = new window.NDEFReader();
+        const ndef = new NDEFReader();
         await ndef.scan();
+        setNfcProgress((prev) => [...prev, 'NFCタグのスキャンを開始しました']);
   
         ndef.onreading = (event) => {
+          setNfcProgress((prev) => [...prev, 'NFCタグの読み取りイベントがトリガーされました']);
           const decoder = new TextDecoder();
           for (const record of event.message.records) {
-            const data = decoder.decode(record.data);
-            alert('Scanned NFC Data:', data);
-  
-            if (data.startsWith('http://localhost:3000/mypage/')) {
-              const userId = data.replace('http://localhost:3000/mypage/', '');
-              alert(`NFCで受信したデータ: ${userId}`);
-              sendRequest(userId);
+            if (record.recordType === 'text') {
+              const userId = decoder.decode(record.data).trim();
+              setNfcProgress((prev) => [...prev, `データを読み取りました: ${userId}`]);
+              
+              // 読み取ったデータでリクエストを送信
+              sendNFCRequest(userId);
+              break;
             }
           }
         };
       } catch (error) {
         console.error('NFC読み取りエラー:', error);
-        alert('NFC読み取りに失敗しました。もう一度お試しください。');
+        alert('NFC読み取りに失敗しました');
       }
     } else {
-      alert('このデバイスやブラウザはNFC機能をサポートしていません。');
+      alert('お使いのブラウザはNFC APIをサポートしていません');
     }
   };
+
 
   const handleNFCModalToggle = () => {
     setIsNFCModalVisible(!isNFCModalVisible);
@@ -249,7 +368,7 @@ function MyPage() {
       sendRequest(userId);
       setIsQRScannerVisible(false);
     }
-  };
+};
 
   const handleQRScannerToggle = () => {
     setIsQRScannerVisible(!isQRScannerVisible);
@@ -703,12 +822,12 @@ function MyPage() {
               {exchangedProfiles.length > 0 && (
                   <h2 className='friendsprofile'>フレンドのプロフィール</h2>
               )}
-              <div className="profile-list-horizontal">
+              <div className="carousel">
                   {exchangedProfiles.length > 0 ? (
                       exchangedProfiles.map((profileId) => (
                           <div 
                               key={profileId} 
-                              className={`profile-button ${recentlyUpdatedProfiles.includes(profileId) && !viewedProfiles.includes(profileId) ? 'rainbow-border' : ''}`}
+                              className={`carousel-item ${recentlyUpdatedProfiles.includes(profileId) && !viewedProfiles.includes(profileId) ? 'rainbow-border' : ''}`}
                               onClick={() => handleViewBackSide(profileId)}
                           >
                               <ProfileDetail userId={profileId} />
@@ -729,14 +848,45 @@ function MyPage() {
           <Modal isOpen={isTutorialModalVisible} onClose={handleTutorialModalToggle}>
               <TutorialPage /> 
           </Modal> */}
-          <div className="nfc-buttons">
-            <button onClick={handleNFCWrite} className="nfc-button">
+          {/* <div className="nfc-buttons"> */}
+            {/* <button onClick={handleNFCWrite} className="nfc-button">
+              NFCで送信
+            </button> */}
+            {/* <button onClick={handleNFCYomikomi} className="nfc-button">
+              NFCで受信
+            </button> */}
+            {/* <button onClick={handleNFCWriteFromFirestore} className="nfc-button">
               NFCで送信
             </button>
+            <div>
+              <h3>書き込んだ内容</h3>
+              {writtenData ? (
+                <p>
+                  書き込んだデータ: <strong>{writtenData}</strong>
+                </p>
+              ) : (
+                <p>まだNFCにデータを書き込んでいません</p>
+              )}
+            </div>
             <button onClick={handleNFCRead} className="nfc-button">
-              NFCで受信
+                    NFCで受信
             </button>
-          </div>
+            <div>
+              <h3>NFC進捗状況</h3>
+              <ul>
+                {nfcProgress.map((step, index) => (
+                  <li key={index}>{step}</li>
+                ))}
+              </ul>
+              {nfcError && (
+                <div>
+                  <h4>エラーが発生しました</h4>
+                  <p>{nfcError}</p>
+                </div>
+              )}
+            </div>
+          </div> */}
+
           <Modal isOpen={isNFCModalVisible} onClose={handleNFCModalToggle}>
             <h2>NFC交換機能</h2>
             <p>スマートフォンを近づけて名刺情報を交換してください。</p>
@@ -765,10 +915,10 @@ function MyPage() {
               </Modal>
               <button onClick={handleTutorialModalToggle}>
                 <i className="fa-solid fa-question" ></i>
-                <spna>Help</spna>
+                <span>Help</span>
               </button> 
               <Modal isOpen={isTutorialModalVisible} onClose={handleTutorialModalToggle}>
-                  <TutorialPage /> {/* Rendering TutorialPage Component */}
+                  <TutorialPage /> 
               </Modal>
           </div>
       </div>

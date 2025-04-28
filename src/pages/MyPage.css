@@ -197,9 +197,103 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   color: var(--profile-color);
 }
 
-.exchanged-profiles,
+
 .exchange-section {
   margin-bottom: 40px;
+  
+}
+/* .exchanged-profiles{
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+
+  > li {
+    scroll-snap-align: center;
+  }
+} */
+
+.carousel {
+  display: flex;
+  overflow-x: auto; /* 水平方向にスクロール可能 */
+  scroll-snap-type: x mandatory; /* スナップ動作を有効化 */
+  gap: 16px; /* アイテム間の余白 */
+  padding: 16px;
+  scroll-behavior: smooth;
+}
+
+.carousel-item {
+  padding: 15px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  margin: auto;
+  width: 200px;
+  height: 450px;
+  text-align: center;
+  box-shadow: 0 2px 5px var(--shadow-color);
+  flex: 0 0 auto; /* 横スクロールのために追加 */
+  color: var(--profile-color);
+  scroll-snap-align: center;
+  position: relative; /* ラベルボタンの位置を相対的に */
+}
+
+.carousel-item:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* スクロールボタン */
+.carousel::scroll-button(left),
+.carousel::scroll-button(right) {
+  content: '';
+  width: 40px;
+  height: 40px;
+  background: #ccc;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.carousel-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.carousel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.carousel::scroll-button(left) {
+  left: 10px;
+}
+
+.carousel::scroll-button(right) {
+  right: 10px;
+}
+
+.carousel::scroll-button(*):hover {
+  background: #aaa;
+}
+
+.carousel > li::scroll-marker {
+  content: '•';
+  font-size: 24px;
+  color: grey;
+  margin: 0 4px;
+}
+.carousel > li::scroll-marker:target-current {
+  color: black;
+  font-weight: bold;
 }
 
 .exchange-section h2 {
@@ -231,7 +325,11 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   display: flex;
   overflow-x: auto;
   gap: 20px;
+  scroll-snap-type: x mandatory;
   padding: 10px;
+  > li {
+    scroll-snap-align: center;
+  }
 }
 
 .profile-button {
@@ -245,6 +343,7 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   box-shadow: 0 2px 5px var(--shadow-color);
   flex: 0 0 auto; /* 横スクロールのために追加 */
   color: var(--profile-color);
+  scroll-snap-align: center;
   position: relative; /* ラベルボタンの位置を相対的に */
 }
 
@@ -529,6 +628,8 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   .profile-list-horizontal {
     padding: 0 10px;
     margin: 0 auto;
+    scroll-snap-type: x mandatory;
+
   }
 
   .profile-button,
