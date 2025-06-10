@@ -4,26 +4,21 @@ import mkcert from 'vite-plugin-mkcert'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // 正: ここ（トップレベル）に書きます
+  // 値は必ずスラッシュで囲んでください
+  plugins: [react(), mkcert()],
+  base: '/my-profile-app/',
+
+  // 開発サーバー用の設定（デプロイには影響しません）
   server: {
     open: false,
     port: 3000,
-    allowedHosts: true // TODO put specific names for prod
+    allowedHosts: true,
   },
+  
+  // ビルド（公開用ファイル生成）用の設定
   build: {
     outDir: 'build'
   },
-//   base: '/',
-  plugins: [react(), mkcert()],
-//   test: {
-//     globals: true,
-//     environment: 'jsdom',
-//     setupFiles: './src/setupTests.ts',
-//     css: true,
-//     reporters: ['verbose'],
-//     coverage: {
-//         reporter: ['text', 'json', 'html'],
-//         include: ['src/**/*'],
-//         exclude: [],
-//     }
-//   },
+
 })

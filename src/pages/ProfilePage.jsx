@@ -168,7 +168,7 @@ function UserProfilePage() {
 
   return (
     <div className="profile-container">
-      <h2>プロフィール</h2>
+      {/* <h2>プロフィール</h2> */}
       <div className="profile-card">
         {previewURL ? (
           <img
@@ -201,7 +201,7 @@ function UserProfilePage() {
             {user && user.uid === userId ? (
               <div>
                 <button className="primary" onClick={() => setEditMode(true)}>プロフィール編集</button>
-                <button className="primary1" onClick={() => navigate(`/mypage/${userId}`)}>マイページへ</button>
+                {/* <button className="primary1" onClick={() => navigate(`/mypage/${userId}`)}>マイページへ</button> */}
               </div>
             ) : (
               <div><span>(Other's card or not signed in)</span></div>
@@ -242,13 +242,13 @@ function UserProfilePage() {
           />
           <div className="social-buttons">
             <button className="twitter-button" onClick={() => handleAddSocialLink('Twitter')}>
-              <FontAwesomeIcon icon={faTwitter} size="xl" /> Twitterリンクを追加
+              <FontAwesomeIcon icon={faTwitter} size="xl" /> リンクを追加
             </button>
             <button className="instagram-button" onClick={() => handleAddSocialLink('Instagram')}>
-              <FontAwesomeIcon icon={faSquareInstagram} size="xl" /> Instagramリンクを追加
+              <FontAwesomeIcon icon={faSquareInstagram} size="xl" /> リンクを追加
             </button>
             <button className="github-button" onClick={() => handleAddSocialLink('GitHub')}>
-              <FontAwesomeIcon icon={faGithub} size="xl" /> GitHubリンクを追加
+              <FontAwesomeIcon icon={faGithub} size="xl" /> リンクを追加
             </button>
           </div>
           <div className="modal-actions">

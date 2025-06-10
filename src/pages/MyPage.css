@@ -198,6 +198,15 @@ h1, h2, h3, h4, h5, h6, .profile-list {
 }
 
 
+.namesarchbox{
+  width: 250px;
+  height: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
 .exchange-section {
   margin-bottom: 40px;
   
@@ -236,12 +245,12 @@ h1, h2, h3, h4, h5, h6, .profile-list {
 }
 
 .carousel-item:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 /* スクロールボタン */
-.carousel::scroll-button(left),
+/* .carousel::scroll-button(left),
 .carousel::scroll-button(right) {
   content: '';
   width: 40px;
@@ -251,7 +260,7 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-}
+} */
 .carousel-button {
   position: absolute;
   top: 50%;
@@ -295,6 +304,8 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   color: black;
   font-weight: bold;
 }
+
+
 
 .exchange-section h2 {
   font-size: 24px;
@@ -469,7 +480,9 @@ h1, h2, h3, h4, h5, h6, .profile-list {
 .profile-card p {
   margin-bottom: 10px;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 16px;
+  word-break: break-all;
+  white-space: pre-line;
 }
 
 /* MyPage.css の追加スタイル */
@@ -559,6 +572,30 @@ h1, h2, h3, h4, h5, h6, .profile-list {
 
 }
 
+
+
+.custom-toast {
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #fff;
+  padding: 18px 32px;
+  font-size: 18px;
+  border-radius: 30px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  z-index: 9999;
+  animation: toast-fadein 0.5s, toast-fadeout 0.5s 2.5s;
+}
+@keyframes toast-fadein {
+  from { opacity: 0; margin-top: -40px; }
+  to   { opacity: 1; margin-top: 0; }
+}
+@keyframes toast-fadeout {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
 
 /* スマホ向けのスタイル */
 @media (max-width: 600px) {
@@ -715,3 +752,4 @@ h1, h2, h3, h4, h5, h6, .profile-list {
   transform: scale(1.05);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
+

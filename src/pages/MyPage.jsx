@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './MyPage.css';
+// import './MyPage.css';
 import ProfileDetail from './ProfileDetail';
 import { QRCodeCanvas } from 'qrcode.react';
 import { useAuth } from '../AuthContext';
@@ -11,6 +11,7 @@ import Modal from './Modal'; // モーダルコンポーネントをインポー
 import Cookies from 'js-cookie';
 import Trophies from './Trophies'; 
 import TutorialPage from './TutorialPage';
+import UserProfilePage from './ProfilePage';
 
 function MyPage() {
   const [exchangedProfiles, setExchangedProfiles] = useState([]);
@@ -51,8 +52,11 @@ function MyPage() {
 
   const [isTrophiesModalVisible, setIsTrophiesModalVisible] = useState(false); 
   const [isTutorialModalVisible, setIsTutorialModalVisible] = useState(false);
-
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
   useEffect(() => {
     fetchUserTheme(); // ユーザーのテーマを取得
   }, [currentUserId]);
@@ -72,6 +76,18 @@ function MyPage() {
       setViewedProfiles(JSON.parse(viewedProfilesCookie));
     }
   }, [currentUserId]);
+
+  useEffect(() => {
+    if(!searchQuery){
+      setFilteredUsers(allUsers);
+    } else {
+      setFilteredUsers(
+        allUsers.filter(user =>
+        (user.username || '').toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    }
+  }, [searchQuery, allUsers]);
 
   const fetchData = async () => {
     await fetchExchangedProfiles();
@@ -164,9 +180,9 @@ function MyPage() {
     }
   };
 
-  const handleEditProfile = () => {
-    navigate(`/login/${currentUserId}`);
-  };
+  // const handleEditProfile = () => {
+  //   navigate(`/login/${currentUserId}`);
+  // };
 
 
   const jumpToAnProfile = (userId) => {
@@ -590,7 +606,10 @@ function MyPage() {
         exchangedProfiles: arrayUnion(currentUserId),
       });
 
-      alert('リクエストを承認しました');
+      // alert('リクエストを承認しました');
+      setToastMessage('🎉 交換が成立しました！');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
       setReceivedRequests(updatedReceivedRequests);
       fetchData(); // Refresh the data after approving the request
     } catch (error) {
@@ -688,8 +707,15 @@ function MyPage() {
     setIsTutorialModalVisible(!isTutorialModalVisible);
   }
 
+  const handleEditModalToggle = () => {
+    setIsEditModalVisible(!isEditModalVisible);
+  }
+
   return (
       <div className="mypage-container" style={{ background: 'var(--theme-color)' }}>
+        {showToast && (
+          <div className="custom-toast">{toastMessage}</div>
+        )}
           <div className="header" style={{ background: 'var(--header-color)' }}>
               <div className="notification-icon" onClick={handleRequestModalToggle}>
                   <i className="fas fa-bell"></i>
@@ -822,7 +848,14 @@ function MyPage() {
               {exchangedProfiles.length > 0 && (
                   <h2 className='friendsprofile'>フレンドのプロフィール</h2>
               )}
-              <div className="carousel">
+              <input
+                className="namesarchbox"
+                type="text"
+                placeholder="名前で検索"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+              />
+              {/* <div className="carousel">
                   {exchangedProfiles.length > 0 ? (
                       exchangedProfiles.map((profileId) => (
                           <div 
@@ -842,8 +875,43 @@ function MyPage() {
                   ) : (
                       <p>まだ交換したプロフィールがありません。<br />友達を見つけてプロフィールを交換してみましょう！</p>
                   )}
+              </div> */}
+
+                <div className='carousel'>
+                  {exchangedProfiles.length > 0 ? (
+                    allUsers
+                      .filter(user =>
+                        // 「自分が持っているカード」かつ「検索条件に一致」
+                        exchangedProfiles.includes(user.id) &&
+                        (user.username || '')
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase())
+                      )
+                      .map((user) => (
+                        <div
+                          key={user.id}
+                          className={`carousel-item ${
+                            recentlyUpdatedProfiles.includes(user.id) && !viewedProfiles.includes(user.id)
+                              ? 'rainbow-border'
+                              : ''
+                          }`}
+                          onClick={() => handleViewBackSide(user.id)}
+                        >
+                          <ProfileDetail userId={user.id} />
+                          <button className="fa-solid fa-tags" onClick={() => handleAddLabel(user.id)}></button>
+                          <div className='label-list'>
+                            {labels[user.id] &&
+                              labels[user.id].map((label, index) => (
+                                <span key={index} className='profile-label'>{label}</span>
+                              ))}
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <p>まだ交換したプロフィールがありません。<br />友達を見つけてプロフィールを交換してみましょう！</p>
+                  )}
+                </div>
               </div>
-          </div>
           {/* <button className="tutorial-button" onClick={handleTutorialModalToggle}>Help</button>
           <Modal isOpen={isTutorialModalVisible} onClose={handleTutorialModalToggle}>
               <TutorialPage /> 
@@ -894,10 +962,13 @@ function MyPage() {
 
 
           <div className="bottom-nav">
-              <button onClick={handleEditProfile}>
+              <button onClick={handleEditModalToggle}>
                   <i className="fas fa-pencil-alt"></i>
                   <span>Edit</span>
               </button>
+              <Modal isOpen={isEditModalVisible} onClose={handleEditModalToggle}>
+                  <UserProfilePage/>
+              </Modal>
               <button onClick={handleSettingsModalToggle}>
                   <i className="fa-solid fa-paint-roller"></i>
                   <span>Color</span>

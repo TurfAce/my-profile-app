@@ -17,8 +17,8 @@
 }
 
 /* プロフィールカード内のテキストのフォントサイズを大きくする */
-.profile-card p {
-  font-size: 18px; /* 文字のサイズを18pxに設定（お好みで調整） */
+.profile-edit-form .profile-card p {
+  font-size: 17px; /* 文字のサイズを18pxに設定（お好みで調整） */
   line-height: 1.6; /* 行間を少し広げて、読みやすくする */
   color: #333; /* 文字色を少し暗く設定 */
 }
@@ -66,7 +66,7 @@ button {
   cursor: pointer;
 }
 
-button.primary {
+.profile-container .primary {
   background: linear-gradient(45deg, #322f35, #72757a); /* グラデーション */
   color: white;
   margin: 2px;
@@ -207,18 +207,18 @@ img.hidden {
   gap: 10px; /* ボタン間の間隔を設定 */
 }
 
-.social-buttons button {
+.profile-edit-form .social-buttons button {
   display: inline-block;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 10px 20px;
-  font-size: 16px;
+  gap: 10px;
+  padding: 18px 15px;
+  font-size: 12px;
   border: none;
   color: white;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
-  margin: 5px 0;
+  margin: 7px 2;
 }
 
 .social-buttons .twitter-button {
@@ -252,6 +252,7 @@ img.hidden {
   }
   .profile-container {
     height: 720px; /* 高さを自動にする */
+    width: 330px;
     margin: 0 auto;
     background-color: white;
     padding: 20px;
